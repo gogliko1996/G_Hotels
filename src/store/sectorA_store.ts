@@ -50,7 +50,7 @@ export const useSvavesectorA = create<TokenState>()(
                if (Number(satatData) - Number(data) > 0) {
                   const num = Number(satatData) - Number(data);
                   const a = Number(satatData) - num;
-                  const b = Number(item.allPrice) * a;
+                  const b = Number(item.onePrice) * a;
 
                   return {
                      ...item,
