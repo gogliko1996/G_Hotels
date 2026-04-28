@@ -22,7 +22,7 @@ export default function App() {
    } = useSvavesectorB();
 
    useEffect(() => {
-      if (!allSectorA) {
+      if (allSectorA.length <= 0) {
          savesectorA(sectorA);
       }
    }, []);
@@ -35,7 +35,7 @@ export default function App() {
    }, []);
 
    useEffect(() => {
-      if (!allSectorB) {
+      if (allSectorB.length <= 0) {
          savesectorB(sectorB);
       }
    }, []);
