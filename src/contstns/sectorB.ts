@@ -42,7 +42,7 @@ export const sectorB: Room[] = [
    },
    {
       id: 4,
-      room: 4010,
+      room: 410,
       isFree: false,
       stayingTime: "",
       startTime: "",
@@ -52,7 +52,7 @@ export const sectorB: Room[] = [
    },
    {
       id: 5,
-      room: 4011,
+      room: 411,
       isFree: false,
       stayingTime: "",
       startTime: "",
@@ -94,7 +94,7 @@ export const sectorB: Room[] = [
 
    {
       id: 10,
-      room: 3010,
+      room: 310,
       isFree: false,
       stayingTime: "",
       startTime: "",
@@ -105,7 +105,7 @@ export const sectorB: Room[] = [
 
    {
       id: 11,
-      room: 3011,
+      room: 311,
       isFree: false,
       stayingTime: "",
       startTime: "",
@@ -157,7 +157,7 @@ export const sectorB: Room[] = [
    },
    {
       id: 17,
-      room: 2011,
+      room: 211,
       isFree: false,
       stayingTime: "",
       startTime: "",
@@ -200,7 +200,7 @@ export const sectorB: Room[] = [
    },
    {
       id: 22,
-      room: 1010,
+      room: 110,
       isFree: false,
       stayingTime: "",
       startTime: "",
@@ -210,7 +210,7 @@ export const sectorB: Room[] = [
    },
    {
       id: 23,
-      room: 1011,
+      room: 111,
       isFree: false,
       stayingTime: "",
       startTime: "",
