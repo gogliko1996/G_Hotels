@@ -1,20 +1,22 @@
 import { BlurView } from "expo-blur";
 import React, { useEffect, useState } from "react";
 import {
+   Keyboard,
+   KeyboardAvoidingView,
    Modal,
+   Platform,
    StyleSheet,
    Text,
    TextInput,
    TouchableOpacity,
+   TouchableWithoutFeedback,
    View,
 } from "react-native";
+import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+
 import { Room } from "../contstns/sectorB";
 import { useSvavesectorA } from "../store/sectorA_store";
-import {
-   formatDate,
-   getDateDifferenceInDays,
-   getRemainingDays,
-} from "../fun/calculatoionTime";
+import { formatDate, getRemainingDays } from "../fun/calculatoionTime";
 
 interface SectorAModalProps {
    isOpen: boolean;
@@ -33,6 +35,7 @@ export const SectorAModal: React.FC<SectorAModalProps> = ({
    const { bookRoom } = useSvavesectorA();
 
    const closeModal = () => {
+      Keyboard.dismiss();
       onClose && onClose();
       setPrice("");
       setValue("");
@@ -40,6 +43,7 @@ export const SectorAModal: React.FC<SectorAModalProps> = ({
 
    const save = () => {
       const now = new Date();
+
       const tenDaysLater = new Date(
          now.getTime() + Number(value) * 24 * 60 * 60 * 1000,
       );
@@ -55,7 +59,8 @@ export const SectorAModal: React.FC<SectorAModalProps> = ({
          remainingAmount: allPrice,
          isFree: true,
       };
-      bookRoom(newItem);
+
+      bookRoom(newItem as any);
       closeModal();
    };
 
@@ -70,8 +75,7 @@ export const SectorAModal: React.FC<SectorAModalProps> = ({
          isFree: false,
       };
 
-      bookRoom(newItem);
-
+      bookRoom(newItem as any);
       closeModal();
    };
 
@@ -104,258 +108,378 @@ export const SectorAModal: React.FC<SectorAModalProps> = ({
    useEffect(() => {
       if (isOpen) {
          setPrice(item?.onePrice || "");
+         setValue("");
       }
-   }, [isOpen]);
+   }, [isOpen, item?.onePrice]);
+
+   const totalPrice = Number(price || 0) * Number(value || 0);
+
    return (
-      <Modal visible={isOpen} transparent>
-         <BlurView intensity={20} tint="regular" style={styles.constiner}>
-            {item?.isFree ? (
-               <View style={styles.bodyB}>
-                  <Text
-                     style={styles.bookRomText}
-                  >{`დაკავებული ოთახი - #${item?.room}`}</Text>
+      <Modal visible={isOpen} transparent animationType="fade">
+         <BlurView intensity={35} tint="dark" style={styles.container}>
+            <TouchableWithoutFeedback
+               onPress={Keyboard.dismiss}
+               accessible={false}
+            >
+               <KeyboardAvoidingView
+                  behavior={Platform.OS === "ios" ? "padding" : "height"}
+                  keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+                  style={styles.keyboardView}
+               >
+                  <View style={styles.modal}>
+                     <View style={styles.header}>
+                        <View
+                           style={[
+                              styles.headerIcon,
+                              {
+                                 backgroundColor: item?.isFree
+                                    ? "#fee2e2"
+                                    : "#dcfce7",
+                              },
+                           ]}
+                        >
+                           <Ionicons
+                              name={item?.isFree ? "bed" : "bed-outline"}
+                              size={26}
+                              color={item?.isFree ? "#dc2626" : "#16a34a"}
+                           />
+                        </View>
 
-                  <Text
-                     style={styles.bookTime}
-                  >{`დაჯავშნის თარიღი: ${formatDate(item.startTime)}`}</Text>
-                  <Text
-                     style={styles.bookTime}
-                  >{`ჯავშნის დასრულება: ${formatDate(item.stayingTime)}`}</Text>
-                  <Text
-                     style={styles.bookTime}
-                  >{`გადახდილი თანხა: ${item.allPrice ?? 0} ლ `}</Text>
-                  <Text
-                     style={styles.bookTime}
-                  >{`დარჩენილი თანხა: ${item?.remainingAmount ?? 0} ლ`}</Text>
-                  <Text
-                     style={styles.bookTime}
-                  >{`დარჩა: ${getRemainingDays(item.stayingTime)} დღე`}</Text>
+                        <View>
+                           <Text style={styles.roomTitle}>
+                              ოთახი #{item?.room}
+                           </Text>
 
-                  <View
-                     style={[
-                        styles.inputConteiner,
-                        {
-                           marginTop: 5,
-                           marginBottom: 15,
-                           marginLeft: -10,
-                        },
-                     ]}
-                  >
-                     <Text>ერთი დღის თანხა</Text>
-                     <TextInput
-                        style={styles.inpit}
-                        onChangeText={(e) => setPrice(e)}
-                        keyboardType="numeric"
-                        value={price}
-                     />
-                     <Text>ლარი</Text>
+                           <Text
+                              style={[
+                                 styles.statusText,
+                                 {
+                                    color: item?.isFree ? "#dc2626" : "#16a34a",
+                                 },
+                              ]}
+                           >
+                              {item?.isFree ? "დაკავებული" : "თავისუფალი"}
+                           </Text>
+                        </View>
+                     </View>
+
+                     {item?.isFree && (
+                        <View style={styles.infoContainer}>
+                           <View style={styles.infoRow}>
+                              <Feather
+                                 name="calendar"
+                                 size={16}
+                                 color="#64748b"
+                              />
+                              <Text style={styles.infoText}>
+                                 დაწყება: {formatDate(item.startTime)}
+                              </Text>
+                           </View>
+
+                           <View style={styles.infoRow}>
+                              <Ionicons
+                                 name="time-outline"
+                                 size={16}
+                                 color="#64748b"
+                              />
+                              <Text style={styles.infoText}>
+                                 დასრულება: {formatDate(item.stayingTime)}
+                              </Text>
+                           </View>
+
+                           <View style={styles.infoRow}>
+                              <MaterialCommunityIcons
+                                 name="cash"
+                                 size={16}
+                                 color="#64748b"
+                              />
+                              <Text style={styles.infoText}>
+                                 გადახდილი: {item.allPrice ?? 0} ₾
+                              </Text>
+                           </View>
+
+                           <View style={styles.infoRow}>
+                              <Ionicons
+                                 name="wallet-outline"
+                                 size={16}
+                                 color="#64748b"
+                              />
+                              <Text style={styles.infoText}>
+                                 დარჩენილი: {item.remainingAmount ?? 0} ₾
+                              </Text>
+                           </View>
+
+                           <View style={styles.infoRow}>
+                              <Ionicons
+                                 name="hourglass-outline"
+                                 size={16}
+                                 color="#64748b"
+                              />
+                              <Text style={styles.infoText}>
+                                 დარჩა: {getRemainingDays(item.stayingTime)} დღე
+                              </Text>
+                           </View>
+                        </View>
+                     )}
+
+                     <View style={styles.inputWrapper}>
+                        <Text style={styles.label}>ერთი დღის ფასი</Text>
+
+                        <View style={styles.inputContainer}>
+                           <MaterialCommunityIcons
+                              name="currency-usd"
+                              size={20}
+                              color="#64748b"
+                           />
+
+                           <TextInput
+                              style={styles.input}
+                              keyboardType="numeric"
+                              value={price}
+                              onChangeText={setPrice}
+                              placeholder="0"
+                              placeholderTextColor="#94a3b8"
+                           />
+
+                           <Text style={styles.currency}>₾</Text>
+                        </View>
+                     </View>
+
+                     <View style={styles.inputWrapper}>
+                        <Text style={styles.label}>
+                           {item?.isFree ? "დღეების დამატება" : "დარჩენის დრო"}
+                        </Text>
+
+                        <View style={styles.inputContainer}>
+                           <Ionicons
+                              name="calendar-outline"
+                              size={20}
+                              color="#64748b"
+                           />
+
+                           <TextInput
+                              style={styles.input}
+                              keyboardType="numeric"
+                              value={value}
+                              onChangeText={setValue}
+                              placeholder="0"
+                              placeholderTextColor="#94a3b8"
+                           />
+
+                           <Text style={styles.currency}>დღე</Text>
+                        </View>
+                     </View>
+
+                     <View style={styles.priceCard}>
+                        <Text style={styles.priceLabel}>
+                           {item?.isFree
+                              ? "დასამატებელი თანხა"
+                              : "გადასახდელი თანხა"}
+                        </Text>
+
+                        <Text style={styles.priceValue}>{totalPrice} ₾</Text>
+                     </View>
+
+                     {item?.isFree && (
+                        <TouchableOpacity
+                           activeOpacity={0.8}
+                           style={styles.saveButton}
+                           onPress={item?.isFree ? updateBook : save}
+                        >
+                           <Ionicons
+                              name="checkmark-circle"
+                              size={20}
+                              color="#fff"
+                           />
+                           <Text style={styles.buttonText}>შენახვა</Text>
+                        </TouchableOpacity>
+                     )}
+
+                     <View style={styles.buttonsRow}>
+                        <TouchableOpacity
+                           activeOpacity={0.8}
+                           style={styles.cancelButton}
+                           onPress={closeModal}
+                        >
+                           <Text style={styles.buttonText}>დახურვა</Text>
+                        </TouchableOpacity>
+
+                        {item?.isFree ? (
+                           <TouchableOpacity
+                              activeOpacity={0.8}
+                              style={styles.removeButton}
+                              onPress={removeBook}
+                           >
+                              <Ionicons
+                                 name="trash-outline"
+                                 size={20}
+                                 color="#fff"
+                              />
+                              <Text style={styles.buttonText}>გაუქმება</Text>
+                           </TouchableOpacity>
+                        ) : (
+                           <TouchableOpacity
+                              activeOpacity={0.8}
+                              style={[styles.saveButton, { width: "48%" }]}
+                              onPress={item?.isFree ? updateBook : save}
+                           >
+                              <Ionicons
+                                 name="checkmark-circle"
+                                 size={20}
+                                 color="#fff"
+                              />
+                              <Text style={styles.buttonText}>შენახვა</Text>
+                           </TouchableOpacity>
+                        )}
+                     </View>
                   </View>
-
-                  <View
-                     style={[
-                        styles.inputConteiner,
-                        {
-                           marginTop: 5,
-                           marginBottom: 15,
-                           marginLeft: -10,
-                        },
-                     ]}
-                  >
-                     <Text> დღეების დამატება</Text>
-                     <TextInput
-                        style={styles.inpit}
-                        onChangeText={(e) => setValue(e)}
-                        keyboardType="numeric"
-                     />
-                     <Text>დღე</Text>
-                  </View>
-
-                  <Text
-                     style={[styles.priceText, { marginTop: 10 }]}
-                  >{`დასამატებელი თანხა: ${Number(price ?? 0) * Number(value ?? 0)}`}</Text>
-
-                  <View style={[styles.bottonConteinter, { marginBottom: 20 }]}>
-                     <TouchableOpacity
-                        style={[
-                           styles.bootan,
-                           { backgroundColor: "#EA7070", width: "100%" },
-                        ]}
-                        onPress={removeBook}
-                     >
-                        <Text style={styles.bootanText}>ჯავშნის გაუქმება</Text>
-                     </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.bottonConteinter}>
-                     <TouchableOpacity
-                        style={[styles.bootan, { backgroundColor: "#EA7070" }]}
-                        onPress={closeModal}
-                     >
-                        <Text style={styles.bootanText}>გაუქმება</Text>
-                     </TouchableOpacity>
-
-                     <TouchableOpacity
-                        style={[styles.bootan, { backgroundColor: "#BFEA70" }]}
-                        onPress={() => {
-                           updateBook();
-                        }}
-                     >
-                        <Text style={styles.bootanText}>შენახვა</Text>
-                     </TouchableOpacity>
-                  </View>
-               </View>
-            ) : (
-               <View style={styles.body}>
-                  <Text
-                     style={styles.freeRomText}
-                  >{`თავისუფალია ოთახი- #${item?.room}`}</Text>
-
-                  <View style={[styles.inputConteiner, { marginBottom: -1 }]}>
-                     <Text>ერთი დღის თანხა</Text>
-                     <TextInput
-                        style={styles.inpit}
-                        onChangeText={(e) => setPrice(e)}
-                        keyboardType="numeric"
-                        value={price}
-                     />
-                     <Text>ლარი</Text>
-                  </View>
-
-                  <View style={styles.inputConteiner}>
-                     <Text>დარჩენის დრო</Text>
-                     <TextInput
-                        value={value}
-                        style={styles.inpit}
-                        onChangeText={(e) => setValue(e)}
-                        keyboardType="numeric"
-                     />
-                     <Text>დღე</Text>
-                  </View>
-
-                  <Text
-                     style={styles.priceText}
-                  >{`გადასახდელი თანხა: ${Number(price ?? 0) * Number(value ?? 0)}`}</Text>
-
-                  <View style={styles.bottonConteinter}>
-                     <TouchableOpacity
-                        style={[styles.bootan, { backgroundColor: "#EA7070" }]}
-                        onPress={closeModal}
-                     >
-                        <Text style={styles.bootanText}>გაუქმება</Text>
-                     </TouchableOpacity>
-
-                     <TouchableOpacity
-                        style={[styles.bootan, { backgroundColor: "#BFEA70" }]}
-                        onPress={() => {
-                           save();
-                        }}
-                     >
-                        <Text style={styles.bootanText}>შენახვა</Text>
-                     </TouchableOpacity>
-                  </View>
-               </View>
-            )}
+               </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
          </BlurView>
       </Modal>
    );
 };
 
 const styles = StyleSheet.create({
-   constiner: {
+   container: {
       flex: 1,
-      flexDirection: "row",
+      paddingHorizontal: 18,
+   },
+   keyboardView: {
+      flex: 1,
       justifyContent: "center",
-      paddingTop: 110,
    },
-   body: {
-      width: "80%",
-      height: 270,
-      borderRadius: 12,
+   modal: {
       backgroundColor: "#fff",
-      shadowColor: "#000",
-      shadowOffset: {
-         width: 0,
-         height: 1,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 1.41,
-
-      elevation: 2,
+      borderRadius: 28,
+      padding: 20,
    },
-   bodyB: {
-      width: "80%",
-      height: 440,
-      borderRadius: 12,
-      backgroundColor: "#fff",
-      shadowColor: "#000",
-      shadowOffset: {
-         width: 0,
-         height: 1,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 1.41,
-
-      elevation: 2,
-   },
-   bottonConteinter: {
-      paddingHorizontal: 20,
+   header: {
       flexDirection: "row",
-      justifyContent: "space-between",
       alignItems: "center",
+      marginBottom: 22,
    },
-   bootan: {
-      width: "40%",
-      height: 50,
-      borderRadius: 12,
-      borderWidth: 0.1,
-      borderColor: "#000",
-      flexDirection: "row",
+   headerIcon: {
+      width: 58,
+      height: 58,
+      borderRadius: 18,
       justifyContent: "center",
       alignItems: "center",
+      marginRight: 14,
    },
-   bootanText: {
-      fontSize: 16,
-      color: "#fff",
+   roomTitle: {
+      fontSize: 24,
+      fontWeight: "800",
+      color: "#0f172a",
    },
-   freeRomText: {
-      marginTop: 10,
-      fontSize: 19,
-      color: "#B6E364",
-      textAlign: "center",
+   statusText: {
+      fontSize: 15,
+      fontWeight: "700",
+      marginTop: 2,
    },
-
-   bookRomText: {
-      marginTop: 10,
+   infoContainer: {
+      backgroundColor: "#f8fafc",
+      borderRadius: 20,
+      padding: 14,
+      marginBottom: 18,
+   },
+   infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
       marginBottom: 10,
-      fontSize: 19,
-      color: "#A81C12",
-      textAlign: "center",
    },
-   inputConteiner: {
-      paddingHorizontal: 20,
+   infoText: {
+      marginLeft: 10,
+      fontSize: 14,
+      color: "#334155",
+      fontWeight: "500",
+   },
+   inputWrapper: {
+      marginBottom: 16,
+   },
+   label: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: "#334155",
+      marginBottom: 8,
+   },
+   inputContainer: {
+      height: 58,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      backgroundColor: "#f8fafc",
+      paddingHorizontal: 14,
+      flexDirection: "row",
+      alignItems: "center",
+   },
+   input: {
+      flex: 1,
+      fontSize: 18,
+      color: "#0f172a",
+      textAlign: "center",
+      fontWeight: "700",
+   },
+   currency: {
+      fontSize: 15,
+      fontWeight: "700",
+      color: "#475569",
+   },
+   priceCard: {
+      backgroundColor: "#eff6ff",
+      borderRadius: 22,
+      paddingVertical: 18,
+      alignItems: "center",
+      marginTop: 10,
+      marginBottom: 18,
+   },
+   priceLabel: {
+      fontSize: 14,
+      color: "#64748b",
+      marginBottom: 4,
+   },
+   priceValue: {
+      fontSize: 30,
+      fontWeight: "900",
+      color: "#2563eb",
+   },
+   removeButton: {
+      height: 56,
+      width: "48%",
+      borderRadius: 18,
+      backgroundColor: "#ef4444",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+      marginBottom: 14,
+      gap: 8,
+   },
+   buttonsRow: {
       flexDirection: "row",
       justifyContent: "space-between",
+      marginTop: 10,
+   },
+   cancelButton: {
+      width: "48%",
+      height: 56,
+      borderRadius: 18,
+      backgroundColor: "#94a3b8",
+      justifyContent: "center",
       alignItems: "center",
-      marginTop: 20,
-      marginBottom: 50,
    },
-   inpit: {
-      height: 40,
-      width: 100,
-      borderColor: "#000",
-      borderWidth: 0.5,
-      borderRadius: 12,
-      textAlign: "center",
+   saveButton: {
+      width: "100%",
+      height: 56,
+      borderRadius: 18,
+      backgroundColor: "#2563eb",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+      gap: 8,
    },
-
-   bookTime: {
-      fontSize: 13,
-      marginLeft: 15,
-      marginBottom: 5,
-   },
-   priceText: {
-      marginTop: -30,
-      marginBottom: 20,
-      marginLeft: 10,
+   buttonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "800",
    },
 });
