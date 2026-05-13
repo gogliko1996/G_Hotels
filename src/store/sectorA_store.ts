@@ -10,6 +10,8 @@ import {
 
 type TokenState = {
    sectorA: Room[];
+   hasHydrated: boolean;
+   setHasHydrated: (value: boolean) => void;
    savesectorA: (rooms: Room[]) => void;
    bookRoom: (room: Room) => void;
    closeBookA: () => void;
@@ -20,47 +22,57 @@ export const useSvavesectorA = create<TokenState>()(
    persist(
       (set, get) => ({
          sectorA: [],
+         hasHydrated: false,
+
+         setHasHydrated: (value: boolean) => {
+            set({ hasHydrated: value });
+         },
 
          savesectorA: (rooms: Room[]) => {
-            const sorArrai = rooms.sort((a, b) => a.id - b.id);
-            set({ sectorA: sorArrai });
+            const sortArray = [...rooms].sort((a, b) => a.id - b.id);
+            set({ sectorA: sortArray });
          },
 
          bookRoom: (room: Room) => {
             const { sectorA } = get();
 
-            const findeObj = sectorA?.filter((item) => item.id !== room.id);
+            const filteredRooms = sectorA.filter((item) => item.id !== room.id);
+            const newArray = [...filteredRooms, room];
 
-            const newarray = [...findeObj, room];
-            const sorArrai = newarray.sort((a, b) => a.id - b.id);
+            const sortArray = newArray.sort((a, b) => a.id - b.id);
 
-            set({ sectorA: sorArrai });
+            set({ sectorA: sortArray });
          },
 
          changePriceA: () => {
             const { sectorA } = get();
 
-            const cangeBooks = sectorA.map((item) => {
-               const data = getRemainingDays(item.stayingTime);
-               const satatData = getDateDifferenceInDays(
-                  item?.startTime,
-                  item?.stayingTime,
+            const changedBooks = sectorA.map((item) => {
+               if (!item.startTime || !item.stayingTime || !item.onePrice) {
+                  return item;
+               }
+
+               const remainingDays = getRemainingDays(item.stayingTime);
+               const totalDays = getDateDifferenceInDays(
+                  item.startTime,
+                  item.stayingTime,
                );
 
-               if (Number(satatData) - Number(data) > 0) {
-                  const num = Number(satatData) - Number(data);
-                  const a = Number(satatData) - num;
-                  const b = Number(item.onePrice) * a;
+               if (Number(totalDays) - Number(remainingDays) > 0) {
+                  const usedDays = Number(totalDays) - Number(remainingDays);
+                  const leftDays = Number(totalDays) - usedDays;
+                  const remainingAmount = Number(item.onePrice) * leftDays;
 
                   return {
                      ...item,
-                     remainingAmount: b,
+                     remainingAmount,
                   };
-               } else {
-                  return item;
                }
+
+               return item;
             });
-            const sortBooks = cangeBooks.sort((a, b) => a.id - b.id);
+
+            const sortBooks = changedBooks.sort((a, b) => a.id - b.id);
             set({ sectorA: sortBooks });
          },
 
@@ -68,6 +80,10 @@ export const useSvavesectorA = create<TokenState>()(
             const { sectorA } = get();
 
             const closeBooks = sectorA.map((item) => {
+               if (!item.stayingTime) {
+                  return item;
+               }
+
                if (isPastOrNow(item.stayingTime)) {
                   return {
                      ...item,
@@ -76,11 +92,11 @@ export const useSvavesectorA = create<TokenState>()(
                      allPrice: "",
                      onePrice: "",
                      remainingAmount: "",
-                     isFree: false,
+                     isFree: true,
                   };
-               } else {
-                  return item;
                }
+
+               return item;
             });
 
             const sortBooks = closeBooks.sort((a, b) => a.id - b.id);
@@ -91,6 +107,9 @@ export const useSvavesectorA = create<TokenState>()(
       {
          name: "sectorA",
          storage: createJSONStorage(() => AsyncStorage),
+         onRehydrateStorage: () => (state) => {
+            state?.setHasHydrated(true);
+         },
       },
    ),
 );

@@ -14,32 +14,42 @@ export default function RootLayout() {
       sectorA: allSectorA,
       closeBookA,
       changePriceA,
+      hasHydrated: hasHydratedA,
    } = useSvavesectorA();
+
    const {
       savesectorB,
       sectorB: allSectorB,
       closeBookB,
       changePriceB,
+      hasHydrated: hasHydratedB,
    } = useSvavesectorB();
 
    useEffect(() => {
-      if (allSectorA.length <= 0) {
-         savesectorA(sectorA);
+      if (!hasHydratedA || !hasHydratedB) return;
+
+      if (allSectorA.length === 0) {
+         savesectorA([...sectorA]);
       }
-   }, []);
+
+      if (allSectorB.length === 0) {
+         savesectorB([...sectorB]);
+      }
+   }, [hasHydratedA, hasHydratedB, allSectorA.length, allSectorB.length]);
 
    useEffect(() => {
-      closeBookA();
-      closeBookB();
-      changePriceA();
-      changePriceB();
-   }, []);
+      if (!hasHydratedA || !hasHydratedB) return;
 
-   useEffect(() => {
-      if (allSectorB.length <= 0) {
-         savesectorB(sectorB);
+      if (allSectorA.length > 0) {
+         closeBookA();
+         changePriceA();
       }
-   }, []);
+
+      if (allSectorB.length > 0) {
+         closeBookB();
+         changePriceB();
+      }
+   }, [hasHydratedA, hasHydratedB, allSectorA.length, allSectorB.length]);
 
    return (
       <>
