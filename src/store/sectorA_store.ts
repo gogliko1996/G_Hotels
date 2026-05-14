@@ -1,14 +1,15 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Room } from "../contstns/sectorB";
+
+import { Room } from "../contstns/roomType";
 import {
    getDateDifferenceInDays,
    getRemainingDays,
    isPastOrNow,
 } from "../fun/calculatoionTime";
 
-type TokenState = {
+type SectorAState = {
    sectorA: Room[];
    hasHydrated: boolean;
    setHasHydrated: (value: boolean) => void;
@@ -18,7 +19,7 @@ type TokenState = {
    changePriceA: () => void;
 };
 
-export const useSvavesectorA = create<TokenState>()(
+export const useSvavesectorA = create<SectorAState>()(
    persist(
       (set, get) => ({
          sectorA: [],
@@ -65,7 +66,7 @@ export const useSvavesectorA = create<TokenState>()(
 
                   return {
                      ...item,
-                     remainingAmount,
+                     remainingAmount: remainingAmount.toString(),
                   };
                }
 
@@ -92,7 +93,7 @@ export const useSvavesectorA = create<TokenState>()(
                      allPrice: "",
                      onePrice: "",
                      remainingAmount: "",
-                     isFree: true,
+                     isFree: false,
                   };
                }
 

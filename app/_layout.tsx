@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
-import { useEffect } from "react";
+import { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
 import { useSvavesectorA } from "../src/store/sectorA_store";
@@ -7,49 +8,37 @@ import { useSvavesectorB } from "../src/store/sectorB_store";
 
 import { sectorA } from "../src/contstns/sectorA";
 import { sectorB } from "../src/contstns/sectorB";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RootLayout() {
-   const {
-      savesectorA,
-      sectorA: allSectorA,
-      closeBookA,
-      changePriceA,
-      hasHydrated: hasHydratedA,
-   } = useSvavesectorA();
+   const [started, setStarted] = useState(false);
 
-   const {
-      savesectorB,
-      sectorB: allSectorB,
-      closeBookB,
-      changePriceB,
-      hasHydrated: hasHydratedB,
-   } = useSvavesectorB();
+   const { savesectorA, sectorA: allSectorA } = useSvavesectorA();
 
-   useEffect(() => {
-      if (!hasHydratedA || !hasHydratedB) return;
+   const { savesectorB, sectorB: allSectorB } = useSvavesectorB();
 
-      if (allSectorA.length === 0) {
-         savesectorA([...sectorA]);
-      }
+   const startApp = () => {
+      savesectorA([...sectorA]);
+      savesectorB([...sectorB]);
 
-      if (allSectorB.length === 0) {
-         savesectorB([...sectorB]);
-      }
-   }, [hasHydratedA, hasHydratedB, allSectorA.length, allSectorB.length]);
+      setStarted(true);
+   };
 
-   useEffect(() => {
-      if (!hasHydratedA || !hasHydratedB) return;
+   const hasData = allSectorA.length > 0 && allSectorB.length > 0;
 
-      if (allSectorA.length > 0) {
-         closeBookA();
-         changePriceA();
-      }
+   if (!hasData && !started) {
+      return (
+         <View style={styles.container}>
+            <Text style={styles.title}>სასტუმროს სისტემა</Text>
 
-      if (allSectorB.length > 0) {
-         closeBookB();
-         changePriceB();
-      }
-   }, [hasHydratedA, hasHydratedB, allSectorA.length, allSectorB.length]);
+            <TouchableOpacity style={styles.button} onPress={() => startApp()}>
+               <Text style={styles.buttonText}>დაწყება</Text>
+            </TouchableOpacity>
+
+            <StatusBar style="auto" />
+         </View>
+      );
+   }
 
    return (
       <>
@@ -58,3 +47,35 @@ export default function RootLayout() {
       </>
    );
 }
+
+const styles = StyleSheet.create({
+   container: {
+      flex: 1,
+      backgroundColor: "#0f172a",
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 20,
+   },
+
+   title: {
+      color: "#fff",
+      fontSize: 32,
+      fontWeight: "800",
+      marginBottom: 30,
+   },
+
+   button: {
+      width: 220,
+      height: 58,
+      borderRadius: 18,
+      backgroundColor: "#2563eb",
+      justifyContent: "center",
+      alignItems: "center",
+   },
+
+   buttonText: {
+      color: "#fff",
+      fontSize: 18,
+      fontWeight: "800",
+   },
+});

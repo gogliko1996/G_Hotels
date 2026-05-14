@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
    View,
    FlatList,
@@ -13,70 +13,166 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { SectorAModal } from "../../Components/sectorA_modal";
 import { SectorBModal } from "../../Components/sectorB_modal";
-import { Room } from "../../contstns/sectorB";
+import { Room } from "../../contstns/roomType";
 import { useSvavesectorA } from "../../store/sectorA_store";
 import { useSvavesectorB } from "../../store/sectorB_store";
 import { getRemainingDays } from "../../fun/calculatoionTime";
 
-type FilterType = "all" | "free" | "busy" | "ending";
+type FilterType = "all" | "free" | "busy" | "reserved" | "ending";
 
-const getRoomColor = (isBooked?: boolean) => {
-   return isBooked ? "#ef4444" : "#22c55e";
+const getStartOfDay = (date: Date) => {
+   const newDate = new Date(date);
+   newDate.setHours(0, 0, 0, 0);
+   return newDate;
 };
 
-const getRoomIcon = (isBooked?: boolean) => {
-   return isBooked ? "bed" : "bed-empty";
+const convertReservationToOccupied = (room: Room): Room => ({
+   ...room,
+   isFree: true,
+
+   startTime: room.reservedStartTime,
+   stayingTime: room.reservedEndTime,
+   onePrice: room.reservedOnePrice,
+   allPrice: room.reservedAllPrice,
+   remainingAmount: room.reservedAllPrice,
+
+   isReserved: false,
+   reservedStartTime: "",
+   reservedEndTime: "",
+   reservedOnePrice: "",
+   reservedAllPrice: "",
+});
+
+const getRoomColor = (room: Room) => {
+   if (room.isFree && room.isReserved) return "#7c3aed";
+   if (room.isFree) return "#ef4444";
+   if (room.isReserved) return "#2563eb";
+   return "#22c55e";
+};
+
+const getRoomBackground = (room: Room) => {
+   if (room.isFree && room.isReserved) return "#f3e8ff";
+   if (room.isFree) return "#fff1f2";
+   if (room.isReserved) return "#eff6ff";
+   return "#ecfdf5";
+};
+
+const getRoomIcon = (room: Room) => {
+   if (room.isFree) return "bed";
+   if (room.isReserved) return "calendar-check";
+   return "bed-empty";
 };
 
 export const Home: React.FC = () => {
    const [showCorpusAModal, setShowCorpusAModal] = useState(false);
    const [showCorpusBModal, setShowCorpusBModal] = useState(false);
-   const [corpusAItem, setCorpusAItem] = useState<Room>();
+   const [selectedAItem, setSelectedAItem] = useState<Room>();
+   const [selectedBItem, setSelectedBItem] = useState<Room>();
    const [search, setSearch] = useState("");
    const [filter, setFilter] = useState<FilterType>("all");
 
-   const { sectorA } = useSvavesectorA();
-   const { sectorB } = useSvavesectorB();
+   const { sectorA, bookRoom, closeBookA, changePriceA } = useSvavesectorA();
 
-   const allRooms = [...sectorA, ...sectorB];
+   const { sectorB, bookRoomB, closeBookB, changePriceB } = useSvavesectorB();
+
+   const safeSectorA = sectorA || [];
+   const safeSectorB = sectorB || [];
+
+   useEffect(() => {
+      const runDailyCheck = () => {
+         closeBookA();
+         closeBookB();
+
+         changePriceA();
+         changePriceB();
+      };
+
+      runDailyCheck();
+
+      const interval = setInterval(runDailyCheck, 60 * 1000);
+
+      return () => clearInterval(interval);
+   }, [closeBookA, closeBookB, changePriceA, changePriceB]);
+
+   useEffect(() => {
+      const today = getStartOfDay(new Date());
+
+      safeSectorA.forEach((room) => {
+         if (!room.isReserved || !room.reservedStartTime) return;
+
+         const reservedStart = getStartOfDay(new Date(room.reservedStartTime));
+
+         if (reservedStart <= today) {
+            bookRoom(convertReservationToOccupied(room));
+         }
+      });
+
+      safeSectorB.forEach((room) => {
+         if (!room.isReserved || !room.reservedStartTime) return;
+
+         const reservedStart = getStartOfDay(new Date(room.reservedStartTime));
+
+         if (reservedStart <= today) {
+            bookRoomB(convertReservationToOccupied(room));
+         }
+      });
+   }, [safeSectorA, safeSectorB, bookRoom, bookRoomB]);
+
+   const allRooms = [...safeSectorA, ...safeSectorB];
 
    const endingSoonRooms = allRooms.filter((room) => {
       if (!room.isFree || !room.stayingTime) return false;
+
       const days = getRemainingDays(room.stayingTime);
+
       return days <= 1;
    });
 
-   const filterRooms = (rooms: Room[]) => {
-      return rooms.filter((room) => {
-         const roomNumber = room.room?.toString() || "";
-         const matchesSearch = roomNumber.includes(search);
+   const reservedRooms = allRooms.filter((room) => room.isReserved);
+   const busyRooms = allRooms.filter((room) => room.isFree);
 
-         if (!matchesSearch) return false;
+   const freeRooms = allRooms.filter(
+      (room) => !room.isFree && !room.isReserved,
+   );
 
-         if (filter === "free") return !room.isFree;
-         if (filter === "busy") return room.isFree;
-         if (filter === "ending") {
-            if (!room.isFree || !room.stayingTime) return false;
-            return getRemainingDays(room.stayingTime) <= 1;
-         }
+   const isRoomDimmed = (room: Room) => {
+      const roomNumber = room.room?.toString() || "";
+      const matchesSearch = roomNumber.includes(search);
 
-         return true;
-      });
+      if (search && !matchesSearch) return true;
+
+      if (filter === "all") return false;
+
+      if (filter === "free") return room.isFree || room.isReserved;
+
+      if (filter === "busy") return !room.isFree;
+
+      if (filter === "reserved") return !room.isReserved;
+
+      if (filter === "ending") {
+         if (!room.isFree || !room.stayingTime) return true;
+
+         const days = getRemainingDays(room.stayingTime);
+
+         return days > 1;
+      }
+
+      return false;
    };
-
-   const filteredSectorA = filterRooms(sectorA);
-   const filteredSectorB = filterRooms(sectorB);
 
    const renderRoom = (
       item: Room,
       width: `${number}%`,
       onPress: () => void,
    ) => {
-      const color = getRoomColor(item.isFree);
+      const color = getRoomColor(item);
+
       const remainingDays =
          item.isFree && item.stayingTime
             ? getRemainingDays(item.stayingTime)
             : null;
+
+      const dimmed = isRoomDimmed(item);
 
       return (
          <TouchableOpacity
@@ -87,7 +183,9 @@ export const Home: React.FC = () => {
                {
                   width,
                   borderColor: color,
-                  backgroundColor: item.isFree ? "#fff1f2" : "#ecfdf5",
+                  backgroundColor: getRoomBackground(item),
+                  borderWidth: item.isFree && item.isReserved ? 2.5 : 1.5,
+                  opacity: dimmed ? 0.18 : 1,
                },
             ]}
          >
@@ -97,9 +195,15 @@ export const Home: React.FC = () => {
                </View>
             )}
 
+            {item.isReserved && (
+               <View style={styles.reservedBadge}>
+                  <Ionicons name="calendar" size={10} color="#fff" />
+               </View>
+            )}
+
             <View style={[styles.iconCircle, { backgroundColor: color }]}>
                <MaterialCommunityIcons
-                  name={getRoomIcon(item.isFree)}
+                  name={getRoomIcon(item)}
                   size={18}
                   color="#fff"
                />
@@ -124,6 +228,18 @@ export const Home: React.FC = () => {
                   {remainingDays} დღე
                </Text>
             )}
+
+            {!item.isFree && item.isReserved && (
+               <Text style={[styles.daysText, { color: "#2563eb" }]}>
+                  ჯავშანი
+               </Text>
+            )}
+
+            {item.isFree && item.isReserved && (
+               <Text style={[styles.daysText, { color: "#7c3aed" }]}>
+                  +ჯავშანი
+               </Text>
+            )}
          </TouchableOpacity>
       );
    };
@@ -139,19 +255,21 @@ export const Home: React.FC = () => {
                <SectorAModal
                   isOpen={showCorpusAModal}
                   onClose={() => setShowCorpusAModal(false)}
-                  item={corpusAItem}
+                  item={selectedAItem}
                />
 
                <SectorBModal
-                  item={corpusAItem}
                   isOpen={showCorpusBModal}
                   onClose={() => setShowCorpusBModal(false)}
+                  item={selectedBItem}
                />
 
                <View style={styles.header}>
                   <View>
                      <Text style={styles.title}>სასტუმროს პანელი</Text>
-                     <Text style={styles.subtitle}>ოთახების მართვა</Text>
+                     <Text style={styles.subtitle}>
+                        ოთახების დაკავება და წინასწარი ჯავშნები
+                     </Text>
                   </View>
 
                   <View style={styles.headerIcon}>
@@ -159,14 +277,36 @@ export const Home: React.FC = () => {
                   </View>
                </View>
 
+               <View style={styles.statsRow}>
+                  <View style={styles.statCard}>
+                     <Text style={styles.statValue}>{freeRooms.length}</Text>
+                     <Text style={styles.statLabel}>თავისუფალი</Text>
+                  </View>
+
+                  <View style={styles.statCard}>
+                     <Text style={[styles.statValue, { color: "#ef4444" }]}>
+                        {busyRooms.length}
+                     </Text>
+                     <Text style={styles.statLabel}>დაკავებული</Text>
+                  </View>
+
+                  <View style={styles.statCard}>
+                     <Text style={[styles.statValue, { color: "#2563eb" }]}>
+                        {reservedRooms.length}
+                     </Text>
+                     <Text style={styles.statLabel}>დაჯავშნილი</Text>
+                  </View>
+               </View>
+
                {endingSoonRooms.length > 0 && (
                   <View style={styles.alertCard}>
                      <Ionicons name="warning" size={24} color="#f59e0b" />
+
                      <View style={{ flex: 1 }}>
                         <Text style={styles.alertTitle}>ყურადღება</Text>
                         <Text style={styles.alertText}>
                            {endingSoonRooms.length} ოთახს დღეს ან ხვალ
-                           უმთავრდება ჯავშანი
+                           უმთავრდება დაკავება
                         </Text>
                      </View>
                   </View>
@@ -174,6 +314,7 @@ export const Home: React.FC = () => {
 
                <View style={styles.searchBox}>
                   <Ionicons name="search" size={20} color="#64748b" />
+
                   <TextInput
                      value={search}
                      onChangeText={setSearch}
@@ -189,6 +330,7 @@ export const Home: React.FC = () => {
                      { label: "ყველა", value: "all" },
                      { label: "თავისუფალი", value: "free" },
                      { label: "დაკავებული", value: "busy" },
+                     { label: "დაჯავშნილი", value: "reserved" },
                      { label: "გასასვლელი", value: "ending" },
                   ].map((item) => (
                      <TouchableOpacity
@@ -219,7 +361,7 @@ export const Home: React.FC = () => {
                            { backgroundColor: "#22c55e" },
                         ]}
                      />
-                     <Text style={styles.legendText}>დასაჯავშნი</Text>
+                     <Text style={styles.legendText}>თავისუფალი</Text>
                   </View>
 
                   <View style={styles.legendItem}>
@@ -229,7 +371,27 @@ export const Home: React.FC = () => {
                            { backgroundColor: "#ef4444" },
                         ]}
                      />
+                     <Text style={styles.legendText}>დაკავებული</Text>
+                  </View>
+
+                  <View style={styles.legendItem}>
+                     <View
+                        style={[
+                           styles.legendDot,
+                           { backgroundColor: "#2563eb" },
+                        ]}
+                     />
                      <Text style={styles.legendText}>დაჯავშნილი</Text>
+                  </View>
+
+                  <View style={styles.legendItem}>
+                     <View
+                        style={[
+                           styles.legendDot,
+                           { backgroundColor: "#7c3aed" },
+                        ]}
+                     />
+                     <Text style={styles.legendText}>ორივე</Text>
                   </View>
                </View>
 
@@ -240,18 +402,21 @@ export const Home: React.FC = () => {
                         size={24}
                         color="#2563eb"
                      />
+
                      <Text style={styles.sectionTitle}>A-კორპუსი</Text>
                   </View>
 
                   <FlatList
-                     data={filteredSectorA}
-                     keyExtractor={(item) => item.id.toString()}
+                     data={safeSectorA}
+                     keyExtractor={(item, index) =>
+                        item?.id ? item.id.toString() : index.toString()
+                     }
                      numColumns={6}
                      scrollEnabled={false}
                      columnWrapperStyle={styles.columnGap}
                      renderItem={({ item }) =>
                         renderRoom(item, "15.5%", () => {
-                           setCorpusAItem(item);
+                           setSelectedAItem(item);
                            setShowCorpusAModal(true);
                         })
                      }
@@ -265,18 +430,21 @@ export const Home: React.FC = () => {
                         size={24}
                         color="#7c3aed"
                      />
+
                      <Text style={styles.sectionTitle}>B-კორპუსი</Text>
                   </View>
 
                   <FlatList
-                     data={filteredSectorB}
-                     keyExtractor={(item) => item.id.toString()}
+                     data={safeSectorB}
+                     keyExtractor={(item, index) =>
+                        item?.id ? item.id.toString() : index.toString()
+                     }
                      numColumns={5}
                      scrollEnabled={false}
                      columnWrapperStyle={styles.columnGap}
                      renderItem={({ item }) =>
                         renderRoom(item, "19%", () => {
-                           setCorpusAItem(item);
+                           setSelectedBItem(item);
                            setShowCorpusBModal(true);
                         })
                      }
@@ -329,6 +497,31 @@ const styles = StyleSheet.create({
       backgroundColor: "#2563eb",
       alignItems: "center",
       justifyContent: "center",
+   },
+   statsRow: {
+      flexDirection: "row",
+      gap: 10,
+      marginBottom: 14,
+   },
+   statCard: {
+      flex: 1,
+      backgroundColor: "#fff",
+      borderRadius: 18,
+      paddingVertical: 14,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+   },
+   statValue: {
+      fontSize: 22,
+      fontWeight: "900",
+      color: "#22c55e",
+   },
+   statLabel: {
+      marginTop: 4,
+      fontSize: 12,
+      fontWeight: "700",
+      color: "#64748b",
    },
    alertCard: {
       backgroundColor: "#fffbeb",
@@ -397,8 +590,9 @@ const styles = StyleSheet.create({
    },
    legendRow: {
       flexDirection: "row",
+      flexWrap: "wrap",
       justifyContent: "center",
-      gap: 18,
+      gap: 14,
       marginBottom: 16,
    },
    legendItem: {
@@ -443,14 +637,12 @@ const styles = StyleSheet.create({
       marginBottom: 8,
    },
    roomCard: {
-      height: 64,
+      height: 72,
       borderRadius: 10,
-      borderWidth: 1.5,
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
    },
-
    warningBadge: {
       position: "absolute",
       top: -5,
@@ -461,6 +653,19 @@ const styles = StyleSheet.create({
       backgroundColor: "#f59e0b",
       alignItems: "center",
       justifyContent: "center",
+      zIndex: 2,
+   },
+   reservedBadge: {
+      position: "absolute",
+      top: -5,
+      left: -5,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: "#2563eb",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 2,
    },
    iconCircle: {
       width: 26,
