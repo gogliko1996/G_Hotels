@@ -20,7 +20,6 @@ export default function RootLayout() {
    const startApp = () => {
       savesectorA([...sectorA]);
       savesectorB([...sectorB]);
-
       setStarted(true);
    };
 
