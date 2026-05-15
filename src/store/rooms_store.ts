@@ -1,13 +1,15 @@
 import { create } from "zustand";
-
 import { Reservation, Stay } from "../services/type";
 import {
    addReservation,
-   deleteRoom,
+   deleteReservation,
    finishStay,
    listenRooms,
+   removeStay,
    startStay,
+   updateReservation,
    updateRoom,
+   updateStay,
 } from "../services/roomsService";
 import { FirebaseRoom } from "./store_service_type";
 
@@ -15,16 +17,12 @@ type RoomsStore = {
    rooms: FirebaseRoom[];
    sectorA: FirebaseRoom[];
    sectorB: FirebaseRoom[];
-
    room: FirebaseRoom | null;
-
    loading: boolean;
    error: string | null;
-
    unsubscribe: null | (() => void);
 
    getRoomById: (firebaseId: string) => FirebaseRoom | undefined;
-
    listenFirebaseRooms: () => void;
    stopListenFirebaseRooms: () => void;
 
@@ -32,8 +30,6 @@ type RoomsStore = {
       firebaseId: string,
       values: Partial<FirebaseRoom>,
    ) => Promise<void>;
-
-   removeRoomById: (firebaseId: string) => Promise<void>;
 
    addReservationToRoom: (
       firebaseId: string,
@@ -43,11 +39,25 @@ type RoomsStore = {
       >,
    ) => Promise<void>;
 
+   updateReservationInRoom: (
+      firebaseId: string,
+      reservationId: string,
+      updatedReservation: Reservation,
+   ) => Promise<void>;
+
+   deleteReservationFromRoom: (
+      firebaseId: string,
+      reservationId: string,
+   ) => Promise<void>;
+
    startStayInRoom: (
       firebaseId: string,
       stay: Omit<Stay, "id" | "createdAt" | "totalPrice">,
    ) => Promise<void>;
 
+   updateStayInRoom: (firebaseId: string, stay: Stay) => Promise<void>;
+
+   removeStayFromRoom: (firebaseId: string) => Promise<void>;
    finishStayInRoom: (firebaseId: string) => Promise<void>;
 };
 
@@ -63,23 +73,17 @@ export const useRoomsStore = create<RoomsStore>((set, get) => ({
    rooms: [],
    sectorA: [],
    sectorB: [],
-
    room: null,
-
    loading: true,
    error: null,
    unsubscribe: null,
 
    getRoomById: (firebaseId) => {
-      const { sectorA, sectorB } = get();
-
-      const selectedRoom = [...sectorA, ...sectorB].find(
+      const selectedRoom = get().rooms.find(
          (room) => room.firebaseId === firebaseId,
       );
 
-      set({
-         room: selectedRoom || null,
-      });
+      set({ room: selectedRoom || null });
 
       return selectedRoom;
    },
@@ -87,9 +91,7 @@ export const useRoomsStore = create<RoomsStore>((set, get) => ({
    listenFirebaseRooms: () => {
       const oldUnsubscribe = get().unsubscribe;
 
-      if (oldUnsubscribe) {
-         oldUnsubscribe();
-      }
+      if (oldUnsubscribe) oldUnsubscribe();
 
       set({ loading: true, error: null });
 
@@ -119,11 +121,7 @@ export const useRoomsStore = create<RoomsStore>((set, get) => ({
 
    stopListenFirebaseRooms: () => {
       const unsubscribe = get().unsubscribe;
-
-      if (unsubscribe) {
-         unsubscribe();
-      }
-
+      if (unsubscribe) unsubscribe();
       set({ unsubscribe: null });
    },
 
@@ -131,22 +129,47 @@ export const useRoomsStore = create<RoomsStore>((set, get) => ({
       await updateRoom(firebaseId, values);
    },
 
-   removeRoomById: async (firebaseId) => {
-      await deleteRoom(firebaseId);
-
-      const currentRoom = get().room;
-
-      if (currentRoom?.firebaseId === firebaseId) {
-         set({ room: null });
-      }
-   },
-
    addReservationToRoom: async (firebaseId, reservation) => {
       await addReservation(firebaseId, reservation);
    },
 
+   updateReservationInRoom: async (
+      firebaseId,
+      reservationId,
+      updatedReservation,
+   ) => {
+      const currentRoom = get().room;
+      if (!currentRoom) return;
+
+      await updateReservation(
+         firebaseId,
+         reservationId,
+         currentRoom.reservations || [],
+         updatedReservation,
+      );
+   },
+
+   deleteReservationFromRoom: async (firebaseId, reservationId) => {
+      const currentRoom = get().room;
+      if (!currentRoom) return;
+
+      await deleteReservation(
+         firebaseId,
+         reservationId,
+         currentRoom.reservations || [],
+      );
+   },
+
    startStayInRoom: async (firebaseId, stay) => {
       await startStay(firebaseId, stay);
+   },
+
+   updateStayInRoom: async (firebaseId, stay) => {
+      await updateStay(firebaseId, stay);
+   },
+
+   removeStayFromRoom: async (firebaseId) => {
+      await removeStay(firebaseId);
    },
 
    finishStayInRoom: async (firebaseId) => {

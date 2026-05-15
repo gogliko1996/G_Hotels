@@ -7,6 +7,7 @@ import {
    getRoomColor,
    getRoomIcon,
    isOccupied,
+   isOccupiedAndReserved,
    isReserved,
 } from "../../../../utils/roomHelpers";
 import { FirebaseRoom } from "../../../../../../store/store_service_type";
@@ -37,7 +38,7 @@ export const RoomCard = ({ item, width, dimmed, onPress }: Props) => {
                width,
                borderColor: color,
                backgroundColor: getRoomBackground(item),
-               borderWidth: isOccupied(item) && isReserved(item) ? 2.5 : 1.5,
+               borderWidth: isOccupiedAndReserved(item) ? 2.5 : 1.5,
                opacity: dimmed ? 0.18 : 1,
             },
          ]}
@@ -86,7 +87,7 @@ export const RoomCard = ({ item, width, dimmed, onPress }: Props) => {
             <Text style={[styles.daysText, { color: "#2563eb" }]}>ჯავშანი</Text>
          )}
 
-         {isOccupied(item) && isReserved(item) && (
+         {isOccupiedAndReserved(item) && (
             <Text style={[styles.daysText, { color: "#7c3aed" }]}>
                +ჯავშანი
             </Text>

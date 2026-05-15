@@ -1,16 +1,14 @@
 import { create } from "zustand";
-import {
-   onAuthStateChanged,
-   signInWithEmailAndPassword,
-   signOut,
-   User,
-} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { signInWithEmailAndPassword, signOut, User } from "firebase/auth";
+
 import { auth } from "../../firebase";
 
 type AuthStore = {
    user: User | null;
    loading: boolean;
-   listenAuth: () => () => void;
+
+   checkAuth: () => Promise<void>;
    login: (email: string, password: string) => Promise<void>;
    logout: () => Promise<void>;
 };
@@ -19,21 +17,60 @@ export const useAuthStore = create<AuthStore>((set) => ({
    user: null,
    loading: true,
 
-   listenAuth: () => {
-      return onAuthStateChanged(auth, (user) => {
+   checkAuth: async () => {
+      try {
+         const savedEmail = await AsyncStorage.getItem("hotelEmail");
+         const savedPassword = await AsyncStorage.getItem("hotelPassword");
+
+         if (!savedEmail || !savedPassword) {
+            set({ user: null, loading: false });
+            return;
+         }
+
+         const result = await signInWithEmailAndPassword(
+            auth,
+            savedEmail,
+            savedPassword,
+         );
+
          set({
-            user,
+            user: result.user,
             loading: false,
          });
-      });
+      } catch (error) {
+         console.log(error);
+
+         await AsyncStorage.removeItem("hotelEmail");
+         await AsyncStorage.removeItem("hotelPassword");
+
+         set({
+            user: null,
+            loading: false,
+         });
+      }
    },
 
    login: async (email, password) => {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+
+      await AsyncStorage.setItem("hotelEmail", email);
+      await AsyncStorage.setItem("hotelPassword", password);
+
+      set({
+         user: result.user,
+         loading: false,
+      });
    },
 
    logout: async () => {
       await signOut(auth);
-      set({ user: null });
+
+      await AsyncStorage.removeItem("hotelEmail");
+      await AsyncStorage.removeItem("hotelPassword");
+
+      set({
+         user: null,
+         loading: false,
+      });
    },
 }));

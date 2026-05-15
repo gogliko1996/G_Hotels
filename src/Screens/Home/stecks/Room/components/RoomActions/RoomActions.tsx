@@ -10,7 +10,6 @@ type Props = {
    onOccupyPress: () => void;
    onReservationPress: () => void;
    onFinishPress: () => void;
-   onDeletePress: () => void;
 };
 
 export const RoomActions = ({
@@ -47,7 +46,7 @@ export const RoomActions = ({
                   size={20}
                   color="#fff"
                />
-               <Text style={styles.buttonText}>ოთახის გათავისუფლება</Text>
+               <Text style={styles.buttonText}>მობინადრის წაშლა</Text>
             </TouchableOpacity>
          )}
       </View>

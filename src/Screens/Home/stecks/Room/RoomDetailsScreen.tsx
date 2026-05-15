@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { RoomImageHeader } from "./components/RoomImageHeader/RoomImageHeader";
@@ -12,6 +12,7 @@ import { ReservationModal } from "./components/ReservationModal/ReservationModal
 
 import { styles } from "./RoomDetailsScreen.styles";
 import { useRoomsStore } from "../../../../store/rooms_store";
+import { Reservation } from "../../../../services/type";
 
 export const RoomDetailsScreen: React.FC = () => {
    const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,17 +20,17 @@ export const RoomDetailsScreen: React.FC = () => {
    const {
       loading,
       room,
-      sectorA,
-      sectorB,
+      rooms,
       listenFirebaseRooms,
       stopListenFirebaseRooms,
       getRoomById,
       finishStayInRoom,
-      removeRoomById,
    } = useRoomsStore();
 
    const [occupyModalOpen, setOccupyModalOpen] = useState(false);
    const [reservationModalOpen, setReservationModalOpen] = useState(false);
+   const [editingReservation, setEditingReservation] =
+      useState<Reservation | null>(null);
 
    useEffect(() => {
       listenFirebaseRooms();
@@ -40,36 +41,35 @@ export const RoomDetailsScreen: React.FC = () => {
    }, []);
 
    useEffect(() => {
-      if (id) {
+      if (!loading && id) {
          getRoomById(id);
       }
-   }, [id, sectorA, sectorB]);
+   }, [id, loading, rooms]);
+
+   const handleOpenCreateReservation = () => {
+      setEditingReservation(null);
+      setReservationModalOpen(true);
+   };
+
+   const handleOpenEditReservation = (reservation: Reservation) => {
+      setEditingReservation(reservation);
+      setReservationModalOpen(true);
+   };
+
+   const handleCloseReservationModal = () => {
+      setReservationModalOpen(false);
+      setEditingReservation(null);
+   };
 
    const handleFinishStay = () => {
       if (!room) return;
 
-      Alert.alert("დადასტურება", "გინდა ოთახის გათავისუფლება?", [
+      Alert.alert("დადასტურება", "გინდა მობინადრის წაშლა?", [
          { text: "არა", style: "cancel" },
          {
             text: "კი",
             style: "destructive",
             onPress: () => finishStayInRoom(room.firebaseId),
-         },
-      ]);
-   };
-
-   const handleDeleteRoom = () => {
-      if (!room) return;
-
-      Alert.alert("წაშლა", "ნამდვილად გინდა ოთახის წაშლა?", [
-         { text: "არა", style: "cancel" },
-         {
-            text: "წაშლა",
-            style: "destructive",
-            onPress: async () => {
-               await removeRoomById(room.firebaseId);
-               router.back();
-            },
          },
       ]);
    };
@@ -108,12 +108,14 @@ export const RoomDetailsScreen: React.FC = () => {
             <RoomActions
                room={room}
                onOccupyPress={() => setOccupyModalOpen(true)}
-               onReservationPress={() => setReservationModalOpen(true)}
+               onReservationPress={handleOpenCreateReservation}
                onFinishPress={handleFinishStay}
-               onDeletePress={handleDeleteRoom}
             />
 
-            <ReservationsList room={room} />
+            <ReservationsList
+               room={room}
+               onEditReservation={handleOpenEditReservation}
+            />
          </ScrollView>
 
          <OccupyRoomModal
@@ -123,9 +125,11 @@ export const RoomDetailsScreen: React.FC = () => {
          />
 
          <ReservationModal
+            key={editingReservation?.id || "create-reservation"}
             visible={reservationModalOpen}
             room={room}
-            onClose={() => setReservationModalOpen(false)}
+            reservation={editingReservation}
+            onClose={handleCloseReservationModal}
          />
       </SafeAreaView>
    );

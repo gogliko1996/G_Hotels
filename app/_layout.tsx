@@ -13,7 +13,6 @@ import {
 
 import { StatusBar } from "expo-status-bar";
 
-import { createRoomsInFirebase } from "../src/services/firebaseRooms";
 import { useAuthStore } from "../src/store/auth_store";
 
 export default function RootLayout() {
@@ -21,11 +20,10 @@ export default function RootLayout() {
    const [password, setPassword] = useState("");
    const [errorText, setErrorText] = useState("");
 
-   const { user, loading, login, listenAuth } = useAuthStore();
+   const { user, loading, login, checkAuth } = useAuthStore();
 
    useEffect(() => {
-      const unsubscribe = listenAuth();
-      return unsubscribe;
+      checkAuth();
    }, []);
 
    const handleLogin = async () => {
@@ -84,14 +82,6 @@ export default function RootLayout() {
    return (
       <>
          <Stack screenOptions={{ headerShown: false }} />
-
-         {/*<TouchableOpacity
-            style={styles.createButton}
-            onPress={createRoomsInFirebase}
-         >
-            <Text style={styles.buttonText}>Firebase-ში შექმნა</Text>
-         </TouchableOpacity>*/}
-
          <StatusBar style="auto" />
       </>
    );
@@ -138,19 +128,6 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       marginTop: 10,
-   },
-
-   createButton: {
-      position: "absolute",
-      right: 16,
-      bottom: 40,
-      width: 170,
-      height: 48,
-      borderRadius: 16,
-      backgroundColor: "#2563eb",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 999,
    },
 
    buttonText: {

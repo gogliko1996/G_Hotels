@@ -17,15 +17,21 @@ export const styles = StyleSheet.create({
       color: "#0f172a",
       marginBottom: 14,
    },
-   input: {
+   inputBox: {
       height: 54,
       borderRadius: 16,
       backgroundColor: "#f8fafc",
       borderWidth: 1,
-
       borderColor: "#e2e8f0",
       paddingHorizontal: 14,
       marginBottom: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+   },
+
+   input: {
+      flex: 1,
       fontSize: 15,
       fontWeight: "700",
       color: "#0f172a",

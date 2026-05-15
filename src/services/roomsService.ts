@@ -125,3 +125,52 @@ export const finishStay = async (firebaseId: string) => {
       updatedAt: serverTimestamp(),
    });
 };
+
+export const updateReservation = async (
+   firebaseId: string,
+   reservationId: string,
+   reservations: Reservation[],
+   updatedReservation: Reservation,
+) => {
+   const updatedReservations = reservations.map((reservation) =>
+      reservation.id === reservationId ? updatedReservation : reservation,
+   );
+
+   await updateDoc(doc(db, "rooms", firebaseId), {
+      reservations: updatedReservations,
+      updatedAt: serverTimestamp(),
+   });
+};
+
+export const deleteReservation = async (
+   firebaseId: string,
+   reservationId: string,
+   reservations: Reservation[],
+) => {
+   const updatedReservations = reservations.filter(
+      (reservation) => reservation.id !== reservationId,
+   );
+
+   await updateDoc(doc(db, "rooms", firebaseId), {
+      reservations: updatedReservations,
+      totalReservations: increment(-1),
+      status: updatedReservations.length ? "reserved" : "free",
+      updatedAt: serverTimestamp(),
+   });
+};
+
+export const updateStay = async (firebaseId: string, stay: Stay) => {
+   await updateDoc(doc(db, "rooms", firebaseId), {
+      status: "occupied",
+      currentStay: stay,
+      updatedAt: serverTimestamp(),
+   });
+};
+
+export const removeStay = async (firebaseId: string) => {
+   await updateDoc(doc(db, "rooms", firebaseId), {
+      status: "free",
+      currentStay: null,
+      updatedAt: serverTimestamp(),
+   });
+};
