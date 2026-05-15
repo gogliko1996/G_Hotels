@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// import { SectorAModal } from "../../Components/sectorA_modal";
-// import { SectorBModal } from "../../Components/sectorB_modal";
-
 import { useRoomsStore } from "../../store/rooms_store";
 import { getRemainingDays } from "../../fun/calculatoionTime";
 
