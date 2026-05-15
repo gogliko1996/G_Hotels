@@ -8,6 +8,7 @@ export default function TabsLayout() {
             headerShown: false,
             tabBarActiveTintColor: "#2563eb",
             tabBarInactiveTintColor: "#94a3b8",
+
             tabBarStyle: {
                height: 70,
                paddingTop: 8,
@@ -15,6 +16,7 @@ export default function TabsLayout() {
                borderTopWidth: 0,
                backgroundColor: "#fff",
             },
+
             tabBarLabelStyle: {
                fontSize: 12,
                fontWeight: "800",
@@ -25,6 +27,7 @@ export default function TabsLayout() {
             name="index"
             options={{
                title: "მთავარი",
+
                tabBarIcon: ({ color, size }) => (
                   <Ionicons name="home" size={size} color={color} />
                ),
@@ -35,8 +38,20 @@ export default function TabsLayout() {
             name="analytics"
             options={{
                title: "ანალიტიკა",
+
                tabBarIcon: ({ color, size }) => (
                   <Ionicons name="analytics" size={size} color={color} />
+               ),
+            }}
+         />
+
+         <Tabs.Screen
+            name="settings"
+            options={{
+               title: "სეთინგები",
+
+               tabBarIcon: ({ color, size }) => (
+                  <Ionicons name="settings" size={size} color={color} />
                ),
             }}
          />

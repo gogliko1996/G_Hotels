@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
    View,
    Text,
@@ -14,17 +14,53 @@ import {
 import { StatusBar } from "expo-status-bar";
 
 import { useAuthStore } from "../src/store/auth_store";
+import { useRoomsStore } from "../src/store/rooms_store";
+import { autoUpdateRooms } from "../src/services/roomAutoUpdater";
 
 export default function RootLayout() {
    const [inputEmail, setInputEmail] = useState("");
    const [password, setPassword] = useState("");
    const [errorText, setErrorText] = useState("");
 
+   const didAutoUpdate = useRef(false);
+
    const { user, loading, login, checkAuth } = useAuthStore();
+
+   const {
+      rooms,
+      loading: roomsLoading,
+      listenFirebaseRooms,
+      stopListenFirebaseRooms,
+   } = useRoomsStore();
 
    useEffect(() => {
       checkAuth();
-   }, []);
+   }, [checkAuth]);
+
+   useEffect(() => {
+      if (!user) {
+         didAutoUpdate.current = false;
+         stopListenFirebaseRooms();
+         return;
+      }
+
+      listenFirebaseRooms();
+
+      return () => {
+         stopListenFirebaseRooms();
+      };
+   }, [user]);
+
+   useEffect(() => {
+      if (!user) return;
+      if (roomsLoading) return;
+      if (rooms.length === 0) return;
+      if (didAutoUpdate.current) return;
+
+      didAutoUpdate.current = true;
+
+      autoUpdateRooms(rooms);
+   }, [user, roomsLoading, rooms.length]);
 
    const handleLogin = async () => {
       try {
