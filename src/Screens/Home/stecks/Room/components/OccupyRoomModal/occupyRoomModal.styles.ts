@@ -1,0 +1,70 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+   container: {
+      flex: 1,
+      justifyContent: "center",
+      padding: 18,
+   },
+   modal: {
+      backgroundColor: "#fff",
+      borderRadius: 26,
+      padding: 18,
+   },
+   title: {
+      fontSize: 22,
+      fontWeight: "900",
+      color: "#0f172a",
+      marginBottom: 14,
+   },
+   input: {
+      height: 54,
+      borderRadius: 16,
+      backgroundColor: "#f8fafc",
+      borderWidth: 1,
+
+      borderColor: "#e2e8f0",
+      paddingHorizontal: 14,
+      marginBottom: 10,
+      fontSize: 15,
+      fontWeight: "700",
+      color: "#0f172a",
+   },
+   priceBox: {
+      backgroundColor: "#eff6ff",
+      borderRadius: 18,
+      padding: 14,
+      alignItems: "center",
+      marginVertical: 10,
+   },
+   priceLabel: {
+      fontSize: 14,
+      color: "#64748b",
+      fontWeight: "700",
+   },
+   priceValue: {
+      fontSize: 28,
+      color: "#2563eb",
+      fontWeight: "900",
+   },
+   saveButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#16a34a",
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 10,
+   },
+   cancelButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#64748b",
+      alignItems: "center",
+      justifyContent: "center",
+   },
+   buttonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "900",
+   },
+});

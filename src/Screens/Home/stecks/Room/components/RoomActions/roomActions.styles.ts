@@ -1,0 +1,60 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+   card: {
+      backgroundColor: "#fff",
+      borderRadius: 22,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      gap: 10,
+   },
+   title: {
+      fontSize: 20,
+      fontWeight: "900",
+      color: "#0f172a",
+      marginBottom: 4,
+   },
+   greenButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#16a34a",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 8,
+   },
+   blueButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#2563eb",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 8,
+   },
+   grayButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#64748b",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 8,
+   },
+   redButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#ef4444",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 8,
+   },
+   buttonText: {
+      color: "#fff",
+      fontSize: 15,
+      fontWeight: "900",
+   },
+});
