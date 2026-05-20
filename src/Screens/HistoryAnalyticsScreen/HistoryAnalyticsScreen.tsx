@@ -24,6 +24,8 @@ type RoomFinance = {
    expense: number;
    profit: number;
    incomePerDay: number;
+   expensePerDay: number;
+   profitPerDay: number;
 };
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
@@ -33,6 +35,7 @@ export const HistoryAnalyticsScreen: React.FC = () => {
    const [expenses, setExpenses] = useState<Expense[]>([]);
    const [historyLoading, setHistoryLoading] = useState(true);
    const [expensesLoading, setExpensesLoading] = useState(true);
+   const [expensesOpen, setExpensesOpen] = useState(false);
 
    useEffect(() => {
       const unsubscribe = listenRoomHistory((items) => {
@@ -94,6 +97,8 @@ export const HistoryAnalyticsScreen: React.FC = () => {
             expense: 0,
             profit: 0,
             incomePerDay: 0,
+            expensePerDay: 0,
+            profitPerDay: 0,
          };
 
          previous.days += Number(item.daysStayed || 0);
@@ -113,6 +118,8 @@ export const HistoryAnalyticsScreen: React.FC = () => {
                expense: roundMoney(expense),
                profit: roundMoney(room.income - expense),
                incomePerDay: roundMoney(roomIncomePerDay),
+               expensePerDay: roundMoney(expensePerDay),
+               profitPerDay: roundMoney(roomIncomePerDay - expensePerDay),
             };
          })
          .sort((a, b) => b.days - a.days);
@@ -165,9 +172,6 @@ export const HistoryAnalyticsScreen: React.FC = () => {
                         <View key={room.roomId} style={styles.roomRow}>
                            <View style={styles.roomHeader}>
                               <Text style={styles.roomName}>{room.roomName}</Text>
-                              <Text style={styles.roomProfit}>
-                                 მოგება: {room.profit} ₾
-                              </Text>
                            </View>
 
                            <View style={styles.roomGrid}>
@@ -175,13 +179,25 @@ export const HistoryAnalyticsScreen: React.FC = () => {
                                  დღეები: {room.days}
                               </Text>
                               <Text style={styles.roomText}>
-                                 ხარჯი: {room.expense} ₾
-                              </Text>
-                              <Text style={styles.roomText}>
                                  შემოსავალი: {room.income} ₾
                               </Text>
+                              <Text style={styles.roomProfitLarge}>
+                                 მოგება: {room.profit} ₾
+                              </Text>
                               <Text style={styles.roomText}>
+                                 ხარჯი: {room.expense} ₾
+                              </Text>
+                           </View>
+
+                           <View style={styles.dailyGrid}>
+                              <Text style={styles.dailyIncome}>
                                  დღიური შემოსავალი: {room.incomePerDay} ₾
+                              </Text>
+                              <Text style={styles.dailyExpense}>
+                                 დღიური ხარჯი: {room.expensePerDay} ₾
+                              </Text>
+                              <Text style={styles.dailyProfit}>
+                                 დღიური მოგება: {room.profitPerDay} ₾
                               </Text>
                            </View>
                         </View>
@@ -194,23 +210,40 @@ export const HistoryAnalyticsScreen: React.FC = () => {
                <View style={styles.summaryCard}>
                   <Text style={styles.cardTitle}>ხარჯები</Text>
 
-                  <Text style={styles.sectionTotal}>
-                     სრული ხარჯი: {analytics.totalExpenses} ₾
-                  </Text>
+                  <TouchableOpacity
+                     activeOpacity={0.85}
+                     style={styles.expensesToggle}
+                     onPress={() => setExpensesOpen((value) => !value)}
+                  >
+                     <Text style={styles.sectionTotal}>
+                        სრული ხარჯი: {analytics.totalExpenses} ₾
+                     </Text>
+                     <Ionicons
+                        name={expensesOpen ? "chevron-up" : "chevron-down"}
+                        size={22}
+                        color="#ef4444"
+                     />
+                  </TouchableOpacity>
 
-                  {expenses.length === 0 ? (
-                     <Text style={styles.emptyText}>ხარჯი ჯერ არ არის</Text>
-                  ) : (
-                     expenses.map((expense) => (
-                        <View key={expense.id} style={styles.expenseRow}>
-                           <Text style={styles.expenseTitle}>
-                              {expense.title || "-"}
+                  {expensesOpen && (
+                     <>
+                        {expenses.length === 0 ? (
+                           <Text style={styles.emptyText}>
+                              ხარჯი ჯერ არ არის
                            </Text>
-                           <Text style={styles.expenseAmount}>
-                              {expense.amount || 0} ₾
-                           </Text>
-                        </View>
-                     ))
+                        ) : (
+                           expenses.map((expense) => (
+                              <View key={expense.id} style={styles.expenseRow}>
+                                 <Text style={styles.expenseTitle}>
+                                    {expense.title || "-"}
+                                 </Text>
+                                 <Text style={styles.expenseAmount}>
+                                    {expense.amount || 0} ₾
+                                 </Text>
+                              </View>
+                           ))
+                        )}
+                     </>
                   )}
                </View>
 

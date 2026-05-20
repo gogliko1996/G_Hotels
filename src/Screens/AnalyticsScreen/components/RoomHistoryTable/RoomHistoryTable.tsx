@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Linking, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { StayHistory } from "../../../../services/type";
 import { styles } from "./roomHistoryTable.styles";
@@ -33,6 +35,7 @@ const callPhone = (phone?: string) => {
 };
 
 export const RoomHistoryTable = ({ history }: Props) => {
+   const [historyOpen, setHistoryOpen] = useState(false);
    const totalAmount = history.reduce(
       (sum, item) => sum + Number(item.totalAmount || 0),
       0,
@@ -76,70 +79,93 @@ export const RoomHistoryTable = ({ history }: Props) => {
             </View>
          </View>
 
-         <Text style={styles.totalDays}>სულ დღეები: {totalDays}</Text>
+         <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.historyToggle}
+            onPress={() => setHistoryOpen((value) => !value)}
+         >
+            <Text style={styles.totalDays}>სრული დღეები: {totalDays}</Text>
+            <Ionicons
+               name={historyOpen ? "chevron-up" : "chevron-down"}
+               size={22}
+               color="#2563eb"
+            />
+         </TouchableOpacity>
 
-         {history.length === 0 ? (
-            <Text style={styles.emptyText}>ისტორია ჯერ არ არის</Text>
-         ) : (
-            history.map((item) => (
-               <View key={item.id} style={styles.historyRow}>
-                  <View style={styles.rowHeader}>
-                     <Text style={styles.roomName}>{item.roomName || "-"}</Text>
-                     <Text
-                        style={item.isPaid ? styles.statusPaid : styles.statusUnpaid}
-                     >
-                        {item.isPaid ? "გადახდილია" : "გადასახდელია"}
-                     </Text>
-                  </View>
-
-                  <Text style={styles.guestName}>
-                     სტუმარი: {item.guestName || "-"}
-                  </Text>
-
-                  <View style={styles.infoGrid}>
-                     <Text style={styles.infoText}>
-                        შესვლა: {formatDate(item.checkIn)}
-                     </Text>
-                     <Text style={styles.infoText}>
-                        გასვლა: {formatDate(item.checkOut)}
-                     </Text>
-                     <Text style={styles.infoText}>
-                        დღეები: {item.daysStayed || 0}
-                     </Text>
-                     <Text style={styles.infoText}>
-                        ერთი დღე: {item.pricePerDay || 0} ₾
-                     </Text>
-                  </View>
-
-                  <View style={styles.amountRow}>
-                     <Text style={styles.amountText}>
-                        სულ: {item.totalAmount || 0} ₾
-                     </Text>
-                     <Text style={styles.paidText}>
-                        გადახდილი: {item.paidAmount || 0} ₾
-                     </Text>
-                     <Text style={styles.remainingText}>
-                        დარჩენილი: {item.remainingAmount || 0} ₾
-                     </Text>
-                  </View>
-
-                  <View style={styles.footerRow}>
-                     <Text style={styles.roomId}>ID: {item.roomId || "-"}</Text>
-
-                     {item.guestPhone ? (
-                        <TouchableOpacity
-                           onPress={() => callPhone(item.guestPhone)}
-                        >
-                           <Text style={styles.phoneText}>
-                              {item.guestPhone}
+         {historyOpen && (
+            <>
+               {history.length === 0 ? (
+                  <Text style={styles.emptyText}>ისტორია ჯერ არ არის</Text>
+               ) : (
+                  history.map((item) => (
+                     <View key={item.id} style={styles.historyRow}>
+                        <View style={styles.rowHeader}>
+                           <Text style={styles.roomName}>
+                              {item.roomName || "-"}
                            </Text>
-                        </TouchableOpacity>
-                     ) : (
-                        <Text style={styles.roomId}>ტელ: -</Text>
-                     )}
-                  </View>
-               </View>
-            ))
+                           <Text
+                              style={
+                                 item.isPaid
+                                    ? styles.statusPaid
+                                    : styles.statusUnpaid
+                              }
+                           >
+                              {item.isPaid ? "გადახდილია" : "გადასახდელია"}
+                           </Text>
+                        </View>
+
+                        <Text style={styles.guestName}>
+                           სტუმარი: {item.guestName || "-"}
+                        </Text>
+
+                        <View style={styles.infoGrid}>
+                           <Text style={styles.infoText}>
+                              შესვლა: {formatDate(item.checkIn)}
+                           </Text>
+                           <Text style={styles.infoText}>
+                              გასვლა: {formatDate(item.checkOut)}
+                           </Text>
+                           <Text style={styles.infoText}>
+                              დღეები: {item.daysStayed || 0}
+                           </Text>
+                           <Text style={styles.infoText}>
+                              ერთი დღე: {item.pricePerDay || 0} ₾
+                           </Text>
+                        </View>
+
+                        <View style={styles.amountRow}>
+                           <Text style={styles.amountText}>
+                              სულ: {item.totalAmount || 0} ₾
+                           </Text>
+                           <Text style={styles.paidText}>
+                              გადახდილი: {item.paidAmount || 0} ₾
+                           </Text>
+                           <Text style={styles.remainingText}>
+                              დარჩენილი: {item.remainingAmount || 0} ₾
+                           </Text>
+                        </View>
+
+                        <View style={styles.footerRow}>
+                           <Text style={styles.roomId}>
+                              ID: {item.roomId || "-"}
+                           </Text>
+
+                           {item.guestPhone ? (
+                              <TouchableOpacity
+                                 onPress={() => callPhone(item.guestPhone)}
+                              >
+                                 <Text style={styles.phoneText}>
+                                    {item.guestPhone}
+                                 </Text>
+                              </TouchableOpacity>
+                           ) : (
+                              <Text style={styles.roomId}>ტელ: -</Text>
+                           )}
+                        </View>
+                     </View>
+                  ))
+               )}
+            </>
          )}
       </View>
    );

@@ -101,7 +101,19 @@ export const styles = StyleSheet.create({
       fontSize: 15,
       fontWeight: "900",
       color: "#ef4444",
+   },
+   expensesToggle: {
+      minHeight: 48,
+      borderRadius: 16,
+      backgroundColor: "#fef2f2",
+      borderWidth: 1,
+      borderColor: "#fecaca",
+      paddingHorizontal: 12,
       marginBottom: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
    },
    emptyText: {
       fontSize: 14,
@@ -146,8 +158,9 @@ export const styles = StyleSheet.create({
       fontWeight: "900",
       color: "#0f172a",
    },
-   roomProfit: {
-      fontSize: 14,
+   roomProfitLarge: {
+      width: "48%",
+      fontSize: 16,
       fontWeight: "900",
       color: "#16a34a",
    },
@@ -161,5 +174,29 @@ export const styles = StyleSheet.create({
       fontSize: 13,
       fontWeight: "700",
       color: "#64748b",
+   },
+   dailyGrid: {
+      marginTop: 10,
+      borderRadius: 16,
+      backgroundColor: "#f8fafc",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      padding: 12,
+      gap: 6,
+   },
+   dailyIncome: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#2563eb",
+   },
+   dailyExpense: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#ef4444",
+   },
+   dailyProfit: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#16a34a",
    },
 });
