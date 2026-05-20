@@ -1,0 +1,145 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+   card: {
+      marginTop: 16,
+      backgroundColor: "#fff",
+      borderRadius: 24,
+      padding: 18,
+   },
+   title: {
+      fontSize: 18,
+      fontWeight: "900",
+      color: "#0f172a",
+      marginBottom: 12,
+   },
+   summaryGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+      marginBottom: 10,
+   },
+   summaryItem: {
+      width: "47%",
+      borderRadius: 16,
+      backgroundColor: "#f8fafc",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      padding: 12,
+   },
+   summaryLabel: {
+      fontSize: 12,
+      fontWeight: "800",
+      color: "#64748b",
+      marginBottom: 4,
+   },
+   summaryValue: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
+   paidValue: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#16a34a",
+   },
+   unpaidValue: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#ef4444",
+   },
+   totalDays: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#2563eb",
+      marginBottom: 10,
+   },
+   emptyText: {
+      fontSize: 14,
+      color: "#94a3b8",
+      fontWeight: "700",
+      marginTop: 8,
+   },
+   historyRow: {
+      paddingVertical: 14,
+      borderTopWidth: 1,
+      borderTopColor: "#f1f5f9",
+   },
+   rowHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+   },
+   roomName: {
+      flex: 1,
+      fontSize: 16,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
+   statusPaid: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#16a34a",
+   },
+   statusUnpaid: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#ef4444",
+   },
+   guestName: {
+      marginTop: 6,
+      fontSize: 14,
+      fontWeight: "800",
+      color: "#334155",
+   },
+   infoGrid: {
+      marginTop: 8,
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+   },
+   infoText: {
+      width: "48%",
+      fontSize: 13,
+      fontWeight: "700",
+      color: "#64748b",
+   },
+   amountRow: {
+      marginTop: 10,
+      gap: 4,
+   },
+   amountText: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
+   paidText: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#16a34a",
+   },
+   remainingText: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#ef4444",
+   },
+   footerRow: {
+      marginTop: 8,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+   },
+   roomId: {
+      flex: 1,
+      fontSize: 12,
+      fontWeight: "700",
+      color: "#94a3b8",
+   },
+   phoneText: {
+      fontSize: 13,
+      fontWeight: "900",
+      color: "#2563eb",
+   },
+});

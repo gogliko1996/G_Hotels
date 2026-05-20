@@ -25,7 +25,10 @@ const callPhone = (phone?: string) => {
    Linking.openURL(`tel:${phoneNumber}`);
 };
 
-export const ReservationsList = ({ room, onEditReservation }: Props) => {
+export const ReservationsList = ({
+   room,
+   onEditReservation,
+}: Props) => {
    const { deleteReservationFromRoom } = useRoomsStore();
    const reservations = room.reservations || [];
 

@@ -10,4 +10,20 @@ export const styles = StyleSheet.create({
       paddingTop: 14,
       paddingBottom: 30,
    },
+   historyButton: {
+      minHeight: 58,
+      borderRadius: 18,
+      backgroundColor: "#7c3aed",
+      marginTop: 16,
+      paddingHorizontal: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+   },
+   historyButtonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "900",
+   },
 });

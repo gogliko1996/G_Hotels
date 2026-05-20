@@ -1,0 +1,165 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+   safe: {
+      flex: 1,
+      backgroundColor: "#f8fafc",
+   },
+   header: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingTop: 14,
+      paddingBottom: 12,
+      gap: 12,
+   },
+   backButton: {
+      width: 48,
+      height: 48,
+      borderRadius: 16,
+      backgroundColor: "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+   },
+   headerTextBox: {
+      flex: 1,
+   },
+   title: {
+      fontSize: 25,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
+   subtitle: {
+      marginTop: 3,
+      fontSize: 13,
+      fontWeight: "800",
+      color: "#64748b",
+   },
+   loadingBox: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+   },
+   scrollContent: {
+      paddingHorizontal: 16,
+      paddingBottom: 30,
+   },
+   summaryCard: {
+      backgroundColor: "#fff",
+      borderRadius: 24,
+      padding: 18,
+      marginBottom: 16,
+   },
+   cardTitle: {
+      fontSize: 18,
+      fontWeight: "900",
+      color: "#0f172a",
+      marginBottom: 12,
+   },
+   summaryGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+   },
+   summaryItem: {
+      width: "47%",
+      borderRadius: 16,
+      backgroundColor: "#f8fafc",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      padding: 12,
+   },
+   summaryLabel: {
+      fontSize: 12,
+      fontWeight: "800",
+      color: "#64748b",
+      marginBottom: 5,
+   },
+   summaryValue: {
+      fontSize: 16,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
+   incomeValue: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#2563eb",
+   },
+   expenseValue: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#ef4444",
+   },
+   profitValue: {
+      fontSize: 17,
+      fontWeight: "900",
+      color: "#16a34a",
+   },
+   sectionTotal: {
+      fontSize: 15,
+      fontWeight: "900",
+      color: "#ef4444",
+      marginBottom: 10,
+   },
+   emptyText: {
+      fontSize: 14,
+      color: "#94a3b8",
+      fontWeight: "700",
+   },
+   expenseRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 10,
+      borderTopWidth: 1,
+      borderTopColor: "#f1f5f9",
+      gap: 12,
+   },
+   expenseTitle: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "800",
+      color: "#334155",
+   },
+   expenseAmount: {
+      fontSize: 15,
+      fontWeight: "900",
+      color: "#ef4444",
+   },
+   roomRow: {
+      paddingVertical: 12,
+      borderTopWidth: 1,
+      borderTopColor: "#f1f5f9",
+   },
+   roomHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 10,
+      marginBottom: 8,
+   },
+   roomName: {
+      flex: 1,
+      fontSize: 16,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
+   roomProfit: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#16a34a",
+   },
+   roomGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+   },
+   roomText: {
+      width: "48%",
+      fontSize: 13,
+      fontWeight: "700",
+      color: "#64748b",
+   },
+});

@@ -11,6 +11,8 @@ import {
    increment,
    getDoc,
    Timestamp,
+   query,
+   orderBy,
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
@@ -71,6 +73,7 @@ export const createStayHistoryItem = (
       daysStayed?: number;
       totalAmount?: number;
       isPaid?: boolean;
+      checkOut?: Date;
    },
 ): StayHistory => {
    const daysStayed = Number(overrides?.daysStayed ?? stay.days ?? 0);
@@ -85,7 +88,7 @@ export const createStayHistoryItem = (
       guestName: stay.guestName || "",
       guestPhone: stay.guestPhone || "",
       checkIn: Timestamp.fromDate(toDate(stay.checkInDate)),
-      checkOut: Timestamp.fromDate(toDate(stay.checkOutDate)),
+      checkOut: Timestamp.fromDate(overrides?.checkOut || toDate(stay.checkOutDate)),
       daysStayed,
       pricePerDay,
       totalAmount,
@@ -103,6 +106,24 @@ export const listenRooms = (callback: (rooms: any[]) => void) => {
       }));
 
       callback(rooms);
+   });
+};
+
+export const listenRoomHistory = (callback: (history: StayHistory[]) => void) => {
+   const historyQuery = query(
+      collection(db, "roomHistory"),
+      orderBy("checkOut", "desc"),
+   );
+
+   return onSnapshot(historyQuery, (snapshot) => {
+      const history = snapshot.docs
+         .filter((docItem) => docItem.id !== "__schema")
+         .map((docItem) => ({
+            id: docItem.id,
+            ...docItem.data(),
+         })) as StayHistory[];
+
+      callback(history);
    });
 };
 
@@ -168,6 +189,7 @@ export const finishStay = async (
       daysStayed?: number;
       totalAmount?: number;
       isPaid?: boolean;
+      checkOut?: Date;
    },
 ) => {
    const roomRef = doc(db, "rooms", firebaseId);

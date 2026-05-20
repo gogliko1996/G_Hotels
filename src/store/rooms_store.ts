@@ -64,6 +64,7 @@ type RoomsStore = {
          daysStayed?: number;
          totalAmount?: number;
          isPaid?: boolean;
+         checkOut?: Date;
       },
    ) => Promise<void>;
 };

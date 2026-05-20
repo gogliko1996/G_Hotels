@@ -76,16 +76,31 @@ export const RoomDetailsScreen: React.FC = () => {
       setEditingReservation(null);
    };
 
+   const getDaysUntilToday = (dateValue: string) => {
+      const startDate = new Date(dateValue);
+      const today = new Date();
+
+      startDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      return Math.max(
+         0,
+         Math.ceil(
+            (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+         ),
+      );
+   };
+
    const handleFinishStay = () => {
       if (!room) return;
       if (!room.currentStay) return;
 
-      setFinishDays(String(room.currentStay.days || ""));
+      const daysStayed = getDaysUntilToday(room.currentStay.checkInDate);
+      const totalAmount = daysStayed * Number(room.currentStay.oneDayPrice || 0);
+
+      setFinishDays(String(daysStayed));
       setFinishTotal(
-         String(
-            Number(room.currentStay.days || 0) *
-               Number(room.currentStay.oneDayPrice || 0),
-         ),
+         String(totalAmount),
       );
       setFinishIsPaid(Boolean(room.currentStay.isPaid));
       setFinishModalOpen(true);
@@ -116,6 +131,7 @@ export const RoomDetailsScreen: React.FC = () => {
          daysStayed,
          totalAmount,
          isPaid: finishIsPaid,
+         checkOut: new Date(),
       });
 
       setFinishModalOpen(false);
@@ -248,6 +264,7 @@ export const RoomDetailsScreen: React.FC = () => {
                </View>
             </Pressable>
          </Modal>
+
       </SafeAreaView>
    );
 };
