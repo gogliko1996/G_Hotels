@@ -39,6 +39,17 @@ export const styles = StyleSheet.create({
       color: "#334155",
       marginBottom: 4,
    },
+   phoneRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 4,
+   },
+   phoneText: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#2563eb",
+      marginBottom: 4,
+   },
    price: {
       marginTop: 6,
       fontSize: 18,

@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Linking, Text, TouchableOpacity, View } from "react-native";
 
 import { styles } from "./roomInfoCard.styles";
 import { FirebaseRoom } from "../../../../../../store/store_service_type";
@@ -13,6 +13,13 @@ type Props = {
 const formatDate = (value?: string) => {
    if (!value) return "-";
    return new Date(value).toISOString().split("T")[0];
+};
+
+const callPhone = (phone?: string) => {
+   const phoneNumber = phone?.trim();
+   if (!phoneNumber) return;
+
+   Linking.openURL(`tel:${phoneNumber}`);
 };
 
 export const RoomInfoCard = ({ room }: Props) => {
@@ -75,7 +82,13 @@ export const RoomInfoCard = ({ room }: Props) => {
 
                <View style={styles.row}>
                   <Text style={styles.label}>ტელეფონი</Text>
-                  <Text style={styles.value}>{stay.guestPhone || "-"}</Text>
+                  {stay.guestPhone ? (
+                     <TouchableOpacity onPress={() => callPhone(stay.guestPhone)}>
+                        <Text style={styles.phoneText}>{stay.guestPhone}</Text>
+                     </TouchableOpacity>
+                  ) : (
+                     <Text style={styles.value}>-</Text>
+                  )}
                </View>
 
                <View style={styles.row}>

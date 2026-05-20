@@ -36,6 +36,11 @@ export const styles = StyleSheet.create({
       color: "#0f172a",
       fontWeight: "900",
    },
+   phoneText: {
+      fontSize: 14,
+      color: "#2563eb",
+      fontWeight: "900",
+   },
    paidText: {
       fontSize: 14,
       color: "#16a34a",

@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Linking, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { styles } from "./reservationsList.styles";
@@ -16,6 +16,13 @@ type Props = {
 const formatDate = (value?: string) => {
    if (!value) return "-";
    return new Date(value).toISOString().split("T")[0];
+};
+
+const callPhone = (phone?: string) => {
+   const phoneNumber = phone?.trim();
+   if (!phoneNumber) return;
+
+   Linking.openURL(`tel:${phoneNumber}`);
 };
 
 export const ReservationsList = ({ room, onEditReservation }: Props) => {
@@ -56,9 +63,20 @@ export const ReservationsList = ({ room, onEditReservation }: Props) => {
                   დასრულება: {formatDate(reservation.endDate)}
                </Text>
 
-               <Text style={styles.text}>
-                  ტელეფონი: {reservation.guestPhone || "-"}
-               </Text>
+               <View style={styles.phoneRow}>
+                  <Text style={styles.text}>ტელეფონი: </Text>
+                  {reservation.guestPhone ? (
+                     <TouchableOpacity
+                        onPress={() => callPhone(reservation.guestPhone)}
+                     >
+                        <Text style={styles.phoneText}>
+                           {reservation.guestPhone}
+                        </Text>
+                     </TouchableOpacity>
+                  ) : (
+                     <Text style={styles.text}>-</Text>
+                  )}
+               </View>
 
                <Text style={styles.text}>
                   ჯავშნამდე დარჩა: {getRemainingDays(reservation.startDate)} დღე
