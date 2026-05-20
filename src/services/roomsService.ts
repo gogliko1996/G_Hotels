@@ -85,6 +85,7 @@ export const addReservation = async (
    const newReservation: Reservation = {
       ...reservation,
       id: Date.now().toString(),
+      isPaid: reservation.isPaid ?? false,
       totalPrice: reservation.days * reservation.oneDayPrice,
       status: "reserved",
       createdAt: new Date().toISOString(),
@@ -105,6 +106,7 @@ export const startStay = async (
    const newStay: Stay = {
       ...stay,
       id: Date.now().toString(),
+      isPaid: stay.isPaid ?? false,
       totalPrice: stay.days * stay.oneDayPrice,
       createdAt: new Date().toISOString(),
    };

@@ -1,9 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 import { styles } from "./roomInfoCard.styles";
 import { FirebaseRoom } from "../../../../../../store/store_service_type";
 import { getRemainingDays } from "../../../../../../fun/calculatoionTime";
+import { useRoomsStore } from "../../../../../../store/rooms_store";
 
 type Props = {
    room: FirebaseRoom;
@@ -16,6 +17,31 @@ const formatDate = (value?: string) => {
 
 export const RoomInfoCard = ({ room }: Props) => {
    const stay = room.currentStay;
+   const { updateStayInRoom } = useRoomsStore();
+
+   const handleConfirmPayment = () => {
+      if (!stay || stay.isPaid) return;
+
+      Alert.alert(
+         "თანხის გადახდა",
+         `გადასახდელია: ${stay.totalPrice} ₾\nნამდვილად მოგცათ თანხა?`,
+         [
+            {
+               text: "არა",
+               style: "cancel",
+            },
+            {
+               text: "კი",
+               onPress: async () => {
+                  await updateStayInRoom(room.firebaseId, {
+                     ...stay,
+                     isPaid: true,
+                  });
+               },
+            },
+         ],
+      );
+   };
 
    return (
       <View style={styles.card}>
@@ -48,6 +74,11 @@ export const RoomInfoCard = ({ room }: Props) => {
                </View>
 
                <View style={styles.row}>
+                  <Text style={styles.label}>ტელეფონი</Text>
+                  <Text style={styles.value}>{stay.guestPhone || "-"}</Text>
+               </View>
+
+               <View style={styles.row}>
                   <Text style={styles.label}>შესვლა</Text>
                   <Text style={styles.value}>
                      {formatDate(stay.checkInDate)}
@@ -77,27 +108,19 @@ export const RoomInfoCard = ({ room }: Props) => {
                   <Text style={styles.label}>სულ</Text>
                   <Text style={styles.value}>{stay.totalPrice} ₾</Text>
                </View>
+
+               <View style={styles.row}>
+                  <Text style={styles.label}>გადახდა</Text>
+                  {stay.isPaid ? (
+                     <Text style={styles.paidText}>გადახდილია</Text>
+                  ) : (
+                     <TouchableOpacity onPress={handleConfirmPayment}>
+                        <Text style={styles.unpaidText}>გადასახდელია</Text>
+                     </TouchableOpacity>
+                  )}
+               </View>
             </>
          )}
-
-         <View style={styles.divider} />
-
-         <Text style={styles.subTitle}>ანალიტიკა</Text>
-
-         <View style={styles.row}>
-            <Text style={styles.label}>შემოსავალი</Text>
-            <Text style={styles.value}>{room.totalIncome || 0} ₾</Text>
-         </View>
-
-         <View style={styles.row}>
-            <Text style={styles.label}>ჯავშნები</Text>
-            <Text style={styles.value}>{room.totalReservations || 0}</Text>
-         </View>
-
-         <View style={styles.row}>
-            <Text style={styles.label}>დაკავებული დღეები</Text>
-            <Text style={styles.value}>{room.totalOccupiedDays || 0}</Text>
-         </View>
       </View>
    );
 };

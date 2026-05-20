@@ -36,6 +36,16 @@ export const styles = StyleSheet.create({
       color: "#0f172a",
       fontWeight: "900",
    },
+   paidText: {
+      fontSize: 14,
+      color: "#16a34a",
+      fontWeight: "900",
+   },
+   unpaidText: {
+      fontSize: 14,
+      color: "#ef4444",
+      fontWeight: "900",
+   },
    divider: {
       height: 1,
       backgroundColor: "#e2e8f0",

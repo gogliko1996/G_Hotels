@@ -18,6 +18,10 @@ const normalizeRoom = (room: any, sector: "A" | "B") => ({
 
    reservations: [],
 
+   guestPhone: "",
+
+   isPaid: false,
+
    totalIncome: 0,
 
    totalReservations: 0,
@@ -48,5 +52,6 @@ export const createRoomsInFirebase = async () => {
       console.log("ოთახები შეიქმნა Firebase-ში");
    } catch (error) {
       console.log(error);
+      throw error;
    }
 };

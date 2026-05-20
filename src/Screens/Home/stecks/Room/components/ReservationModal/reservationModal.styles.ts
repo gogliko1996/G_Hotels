@@ -76,6 +76,23 @@ export const styles = StyleSheet.create({
       color: "#2563eb",
       fontWeight: "900",
    },
+   checkboxRow: {
+      minHeight: 54,
+      borderRadius: 16,
+      backgroundColor: "#f8fafc",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      paddingHorizontal: 14,
+      marginBottom: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+   },
+   checkboxText: {
+      fontSize: 15,
+      fontWeight: "800",
+      color: "#0f172a",
+   },
    saveButton: {
       height: 54,
       borderRadius: 18,

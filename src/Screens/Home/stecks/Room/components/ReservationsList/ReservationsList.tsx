@@ -57,6 +57,10 @@ export const ReservationsList = ({ room, onEditReservation }: Props) => {
                </Text>
 
                <Text style={styles.text}>
+                  ტელეფონი: {reservation.guestPhone || "-"}
+               </Text>
+
+               <Text style={styles.text}>
                   ჯავშნამდე დარჩა: {getRemainingDays(reservation.startDate)} დღე
                </Text>
                <Text style={styles.text}>
@@ -64,6 +68,10 @@ export const ReservationsList = ({ room, onEditReservation }: Props) => {
                </Text>
 
                <Text style={styles.price}>{reservation.totalPrice} ₾</Text>
+
+               <Text style={styles.paymentText}>
+                  {reservation.isPaid ? "გადახდილია" : "გადასახდელია"}
+               </Text>
 
                <View style={styles.actionsRow}>
                   <TouchableOpacity

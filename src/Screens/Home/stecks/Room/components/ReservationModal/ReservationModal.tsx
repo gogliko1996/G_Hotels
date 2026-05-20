@@ -42,6 +42,8 @@ export const ReservationModal = ({
    const { addReservationToRoom, updateReservationInRoom } = useRoomsStore();
 
    const [guestName, setGuestName] = useState("");
+   const [guestPhone, setGuestPhone] = useState("");
+   const [isPaid, setIsPaid] = useState(false);
    const [startDate, setStartDate] = useState(new Date());
    const [showPicker, setShowPicker] = useState(false);
    const [days, setDays] = useState("");
@@ -54,11 +56,15 @@ export const ReservationModal = ({
 
       if (reservation) {
          setGuestName(reservation.guestName || "");
+         setGuestPhone(reservation.guestPhone || "");
+         setIsPaid(Boolean(reservation.isPaid));
          setStartDate(new Date(reservation.startDate));
          setDays(String(reservation.days || ""));
          setPrice(String(reservation.oneDayPrice || ""));
       } else {
          setGuestName("");
+         setGuestPhone("");
+         setIsPaid(false);
          setStartDate(new Date());
          setDays("");
          setPrice("");
@@ -94,6 +100,8 @@ export const ReservationModal = ({
          await updateReservationInRoom(room.firebaseId, reservation.id, {
             ...reservation,
             guestName,
+            guestPhone,
+            isPaid,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             days: reserveDays,
@@ -104,6 +112,8 @@ export const ReservationModal = ({
       } else {
          await addReservationToRoom(room.firebaseId, {
             guestName,
+            guestPhone,
+            isPaid,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             days: reserveDays,
@@ -130,6 +140,18 @@ export const ReservationModal = ({
                      placeholderTextColor="grey"
                      value={guestName}
                      onChangeText={setGuestName}
+                  />
+               </View>
+
+               <View style={styles.inputBox}>
+                  <Ionicons name="call-outline" size={20} color="#64748b" />
+                  <TextInput
+                     style={styles.input}
+                     placeholder="ტელეფონის ნომერი"
+                     placeholderTextColor="grey"
+                     keyboardType="phone-pad"
+                     value={guestPhone}
+                     onChangeText={setGuestPhone}
                   />
                </View>
 
@@ -200,6 +222,19 @@ export const ReservationModal = ({
                   <Text style={styles.priceLabel}>სულ თანხა</Text>
                   <Text style={styles.priceValue}>{totalPrice} ₾</Text>
                </View>
+
+               <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.checkboxRow}
+                  onPress={() => setIsPaid((value) => !value)}
+               >
+                  <Ionicons
+                     name={isPaid ? "checkbox-outline" : "square-outline"}
+                     size={24}
+                     color={isPaid ? "#16a34a" : "#64748b"}
+                  />
+                  <Text style={styles.checkboxText}>თანხა გადახდილია</Text>
+               </TouchableOpacity>
 
                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                   <Ionicons name="save-outline" size={20} color="#fff" />

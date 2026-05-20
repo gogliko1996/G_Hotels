@@ -45,6 +45,12 @@ export const styles = StyleSheet.create({
       fontWeight: "900",
       color: "#2563eb",
    },
+   paymentText: {
+      marginTop: 4,
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#0f172a",
+   },
    actionsRow: {
       flexDirection: "row",
       gap: 10,

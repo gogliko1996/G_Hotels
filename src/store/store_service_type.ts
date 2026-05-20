@@ -5,6 +5,8 @@ export type RoomStatus = "free" | "occupied" | "reserved";
 export type Stay = {
    id: string;
    guestName?: string;
+   guestPhone?: string;
+   isPaid: boolean;
    checkInDate: string;
    checkOutDate: string;
    days: number;
@@ -16,6 +18,8 @@ export type Stay = {
 export type Reservation = {
    id: string;
    guestName?: string;
+   guestPhone?: string;
+   isPaid: boolean;
    startDate: string;
    endDate: string;
    days: number;

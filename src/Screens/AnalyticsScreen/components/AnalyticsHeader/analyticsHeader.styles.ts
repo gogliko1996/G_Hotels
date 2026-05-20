@@ -20,6 +20,25 @@ export const styles = StyleSheet.create({
       fontSize: 13,
       color: "#cbd5e1",
    },
+   headerActions: {
+      alignItems: "flex-end",
+      gap: 10,
+   },
+   expensesButton: {
+      minHeight: 38,
+      borderRadius: 14,
+      backgroundColor: "#16a34a",
+      paddingHorizontal: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+   },
+   expensesText: {
+      color: "#fff",
+      fontSize: 13,
+      fontWeight: "900",
+   },
    headerIcon: {
       width: 52,
       height: 52,

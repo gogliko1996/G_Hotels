@@ -33,6 +33,8 @@ export const OccupyRoomModal = ({ visible, room, onClose }: Props) => {
    const { startStayInRoom, updateStayInRoom } = useRoomsStore();
 
    const [guestName, setGuestName] = useState("");
+   const [guestPhone, setGuestPhone] = useState("");
+   const [isPaid, setIsPaid] = useState(false);
    const [days, setDays] = useState("");
    const [price, setPrice] = useState("");
 
@@ -43,10 +45,14 @@ export const OccupyRoomModal = ({ visible, room, onClose }: Props) => {
 
       if (room.currentStay) {
          setGuestName(room.currentStay.guestName || "");
+         setGuestPhone(room.currentStay.guestPhone || "");
+         setIsPaid(Boolean(room.currentStay.isPaid));
          setDays("");
          setPrice(String(room.currentStay.oneDayPrice || ""));
       } else {
          setGuestName("");
+         setGuestPhone("");
+         setIsPaid(false);
          setDays("");
          setPrice("");
       }
@@ -87,6 +93,8 @@ export const OccupyRoomModal = ({ visible, room, onClose }: Props) => {
          await updateStayInRoom(room.firebaseId, {
             ...oldStay,
             guestName,
+            guestPhone,
+            isPaid,
             checkOutDate: newCheckOutDate.toISOString(),
             days: oldStay.days + addedDays,
             oneDayPrice,
@@ -113,6 +121,8 @@ export const OccupyRoomModal = ({ visible, room, onClose }: Props) => {
 
       await startStayInRoom(room.firebaseId, {
          guestName,
+         guestPhone,
+         isPaid,
          checkInDate: now.toISOString(),
          checkOutDate: checkOutDate.toISOString(),
          days: addedDays,
@@ -138,6 +148,18 @@ export const OccupyRoomModal = ({ visible, room, onClose }: Props) => {
                      placeholderTextColor="grey"
                      value={guestName}
                      onChangeText={setGuestName}
+                  />
+               </View>
+
+               <View style={styles.inputBox}>
+                  <Ionicons name="call-outline" size={20} color="#64748b" />
+                  <TextInput
+                     style={styles.input}
+                     placeholder="ტელეფონის ნომერი"
+                     placeholderTextColor="grey"
+                     keyboardType="phone-pad"
+                     value={guestPhone}
+                     onChangeText={setGuestPhone}
                   />
                </View>
 
@@ -181,6 +203,19 @@ export const OccupyRoomModal = ({ visible, room, onClose }: Props) => {
                   </Text>
                   <Text style={styles.priceValue}>{totalPrice} ₾</Text>
                </View>
+
+               <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.checkboxRow}
+                  onPress={() => setIsPaid((value) => !value)}
+               >
+                  <Ionicons
+                     name={isPaid ? "checkbox-outline" : "square-outline"}
+                     size={24}
+                     color={isPaid ? "#16a34a" : "#64748b"}
+                  />
+                  <Text style={styles.checkboxText}>თანხა გადახდილია</Text>
+               </TouchableOpacity>
 
                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                   <Ionicons name="save-outline" size={20} color="#fff" />
