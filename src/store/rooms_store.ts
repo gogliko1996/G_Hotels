@@ -58,7 +58,14 @@ type RoomsStore = {
    updateStayInRoom: (firebaseId: string, stay: Stay) => Promise<void>;
 
    removeStayFromRoom: (firebaseId: string) => Promise<void>;
-   finishStayInRoom: (firebaseId: string) => Promise<void>;
+   finishStayInRoom: (
+      firebaseId: string,
+      historyOverrides?: {
+         daysStayed?: number;
+         totalAmount?: number;
+         isPaid?: boolean;
+      },
+   ) => Promise<void>;
 };
 
 const sortRooms = (rooms: FirebaseRoom[]) =>
@@ -172,7 +179,7 @@ export const useRoomsStore = create<RoomsStore>((set, get) => ({
       await removeStay(firebaseId);
    },
 
-   finishStayInRoom: async (firebaseId) => {
-      await finishStay(firebaseId);
+   finishStayInRoom: async (firebaseId, historyOverrides) => {
+      await finishStay(firebaseId, historyOverrides);
    },
 }));

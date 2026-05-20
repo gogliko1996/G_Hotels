@@ -6,11 +6,13 @@ import { useAuthStore } from "../../store/auth_store";
 import { styles } from "./settings.style";
 import { createRoomsInFirebase } from "../../services/firebaseRooms";
 import { createExpensesTableInFirebase } from "../../services/expensesService";
+import { createHistoryTableInFirebase } from "../../services/roomsService";
 
 export const SettingsScreen: React.FC = () => {
    const { logout } = useAuthStore();
    const [creatingRooms, setCreatingRooms] = useState(false);
    const [creatingExpensesTable, setCreatingExpensesTable] = useState(false);
+   const [creatingHistoryTable, setCreatingHistoryTable] = useState(false);
 
    const handleLogout = () => {
       Alert.alert("გასვლა", "ნამდვილად გსურს ანგარიშიდან გასვლა?", [
@@ -84,6 +86,34 @@ export const SettingsScreen: React.FC = () => {
       );
    };
 
+   const handleCreateHistoryTable = () => {
+      Alert.alert(
+         "ისტორიის ცხრილი",
+         "Firebase-ში შეიქმნას ცალკე roomHistory ცხრილი ისტორიისთვის?",
+         [
+            {
+               text: "გაუქმება",
+               style: "cancel",
+            },
+            {
+               text: "შექმნა",
+               onPress: async () => {
+                  try {
+                     setCreatingHistoryTable(true);
+                     await createHistoryTableInFirebase();
+                     Alert.alert("შესრულდა", "ისტორიის ცხრილი შეიქმნა");
+                  } catch (error) {
+                     console.log(error);
+                     Alert.alert("შეცდომა", "ისტორიის ცხრილი ვერ შეიქმნა");
+                  } finally {
+                     setCreatingHistoryTable(false);
+                  }
+               },
+            },
+         ],
+      );
+   };
+
    return (
       <SafeAreaView style={styles.safe}>
          <View style={styles.container}>
@@ -118,6 +148,21 @@ export const SettingsScreen: React.FC = () => {
                   {creatingExpensesTable
                      ? "იქმნება..."
                      : "ხარჯების ცხრილის შექმნა"}
+               </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+               activeOpacity={0.8}
+               style={styles.createHistoryButton}
+               onPress={handleCreateHistoryTable}
+               disabled={creatingHistoryTable}
+            >
+               <Ionicons name="time-outline" size={24} color="#fff" />
+
+               <Text style={styles.createRoomsText}>
+                  {creatingHistoryTable
+                     ? "იქმნება..."
+                     : "ისტორიის ცხრილის შექმნა"}
                </Text>
             </TouchableOpacity>
 

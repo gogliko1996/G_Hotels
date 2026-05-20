@@ -29,6 +29,22 @@ export type Reservation = {
    createdAt: string;
 };
 
+export type StayHistory = {
+   id: string;
+   roomId: string;
+   roomName: string;
+   guestName: string;
+   guestPhone?: string;
+   checkIn: unknown;
+   checkOut: unknown;
+   daysStayed: number;
+   pricePerDay: number;
+   totalAmount: number;
+   paidAmount: number;
+   remainingAmount: number;
+   isPaid: boolean;
+};
+
 export type FirebaseRoom = {
    firebaseId: string;
    id: number;

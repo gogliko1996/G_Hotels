@@ -65,6 +65,20 @@ export const styles = StyleSheet.create({
       gap: 10,
    },
 
+   createHistoryButton: {
+      minHeight: 58,
+      borderRadius: 18,
+      backgroundColor: "#7c3aed",
+
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+
+      paddingHorizontal: 14,
+      marginBottom: 14,
+      gap: 10,
+   },
+
    createRoomsText: {
       color: "#fff",
       fontSize: 16,

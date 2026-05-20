@@ -1,5 +1,7 @@
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../../firebase";
 import { FirebaseRoom } from "../store/store_service_type";
-import { updateRoom } from "./roomsService";
+import { createStayHistoryItem, updateRoom } from "./roomsService";
 import { Reservation } from "./type";
 
 const startOfDay = (value: Date | string) => {
@@ -23,6 +25,7 @@ export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
 
       let currentStay = room.currentStay || null;
       let reservations = [...(room.reservations || [])];
+      let historyItem: ReturnType<typeof createStayHistoryItem> | null = null;
 
       /**
        * 1. ჯერ მობინადრე შემოწმდეს.
@@ -48,6 +51,11 @@ export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
          }
 
          if (calculatedRemainingDays <= 0) {
+            historyItem = createStayHistoryItem(
+               room.firebaseId,
+               room,
+               currentStay as any,
+            );
             currentStay = null;
             changed = true;
          }
@@ -95,6 +103,8 @@ export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
          currentStay = {
             id: selectedReservation.id,
             guestName: selectedReservation.guestName,
+            guestPhone: selectedReservation.guestPhone,
+            isPaid: selectedReservation.isPaid ?? false,
             checkInDate: selectedReservation.startDate,
             checkOutDate: selectedReservation.endDate,
             days: selectedReservation.days,
@@ -118,12 +128,18 @@ export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
       }
 
       if (changed) {
-         await updateRoom(room.firebaseId, {
+         const values: Record<string, any> = {
             currentStay,
             reservations,
             status: nextStatus,
             totalReservations: reservations.length,
-         });
+         };
+
+         if (historyItem) {
+            await addDoc(collection(db, "roomHistory"), historyItem);
+         }
+
+         await updateRoom(room.firebaseId, values);
       }
    }
 };

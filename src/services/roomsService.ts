@@ -1,5 +1,6 @@
 import {
    collection,
+   addDoc,
    doc,
    setDoc,
    updateDoc,
@@ -8,6 +9,8 @@ import {
    arrayUnion,
    serverTimestamp,
    increment,
+   getDoc,
+   Timestamp,
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
@@ -16,7 +19,7 @@ import { sectorA } from "../contstns/sectorA";
 import { sectorB } from "../contstns/sectorB";
 import { Room } from "../contstns/roomType";
 
-import { Reservation, RoomStatus, Sector, Stay } from "./type";
+import { Reservation, RoomStatus, Sector, Stay, StayHistory } from "./type";
 
 const normalizeRoom = (room: Room, sector: Sector) => ({
    id: room.id,
@@ -51,6 +54,45 @@ export const createRoomsInFirebase = async () => {
    } catch (error) {
       console.log(error);
    }
+};
+
+const toDate = (value?: string) => {
+   if (!value) return new Date();
+
+   const date = new Date(value);
+   return Number.isNaN(date.getTime()) ? new Date() : date;
+};
+
+export const createStayHistoryItem = (
+   firebaseId: string,
+   room: any,
+   stay: Stay,
+   overrides?: {
+      daysStayed?: number;
+      totalAmount?: number;
+      isPaid?: boolean;
+   },
+): StayHistory => {
+   const daysStayed = Number(overrides?.daysStayed ?? stay.days ?? 0);
+   const totalAmount = Number(overrides?.totalAmount ?? stay.totalPrice ?? 0);
+   const isPaid = Boolean(overrides?.isPaid ?? stay.isPaid);
+   const pricePerDay = daysStayed > 0 ? totalAmount / daysStayed : 0;
+
+   return {
+      id: Date.now().toString(),
+      roomId: firebaseId,
+      roomName: `ოთახი ${room?.room || ""}`.trim(),
+      guestName: stay.guestName || "",
+      guestPhone: stay.guestPhone || "",
+      checkIn: Timestamp.fromDate(toDate(stay.checkInDate)),
+      checkOut: Timestamp.fromDate(toDate(stay.checkOutDate)),
+      daysStayed,
+      pricePerDay,
+      totalAmount,
+      paidAmount: isPaid ? totalAmount : 0,
+      remainingAmount: isPaid ? 0 : totalAmount,
+      isPaid,
+   };
 };
 
 export const listenRooms = (callback: (rooms: any[]) => void) => {
@@ -120,12 +162,48 @@ export const startStay = async (
    });
 };
 
-export const finishStay = async (firebaseId: string) => {
-   await updateDoc(doc(db, "rooms", firebaseId), {
+export const finishStay = async (
+   firebaseId: string,
+   historyOverrides?: {
+      daysStayed?: number;
+      totalAmount?: number;
+      isPaid?: boolean;
+   },
+) => {
+   const roomRef = doc(db, "rooms", firebaseId);
+   const snapshot = await getDoc(roomRef);
+   const room = snapshot.data();
+   const currentStay = room?.currentStay as Stay | null | undefined;
+
+   const values: Record<string, any> = {
       status: "free",
       currentStay: null,
       updatedAt: serverTimestamp(),
-   });
+   };
+
+   if (currentStay) {
+      const daysStayed = Number(historyOverrides?.daysStayed ?? currentStay.days);
+      const totalAmount = Number(
+         historyOverrides?.totalAmount ?? currentStay.totalPrice,
+      );
+      const daysDelta = daysStayed - Number(currentStay.days || 0);
+      const totalDelta = totalAmount - Number(currentStay.totalPrice || 0);
+
+      if (daysDelta !== 0) {
+         values.totalOccupiedDays = increment(daysDelta);
+      }
+
+      if (totalDelta !== 0) {
+         values.totalIncome = increment(totalDelta);
+      }
+
+      await addDoc(
+         collection(db, "roomHistory"),
+         createStayHistoryItem(firebaseId, room, currentStay, historyOverrides),
+      );
+   }
+
+   await updateDoc(roomRef, values);
 };
 
 export const updateReservation = async (
@@ -170,6 +248,37 @@ export const updateStay = async (firebaseId: string, stay: Stay) => {
 };
 
 export const removeStay = async (firebaseId: string) => {
+   await finishStay(firebaseId);
+};
+
+export const createHistoryTableInFirebase = async () => {
+   try {
+      await setDoc(doc(db, "roomHistory", "__schema"), {
+         type: "room-history-table",
+         roomId: "",
+         roomName: "",
+         guestName: "",
+         guestPhone: "",
+         checkIn: serverTimestamp(),
+         checkOut: serverTimestamp(),
+         daysStayed: 0,
+         pricePerDay: 0,
+         totalAmount: 0,
+         paidAmount: 0,
+         remainingAmount: 0,
+         isPaid: false,
+         createdAt: serverTimestamp(),
+         updatedAt: serverTimestamp(),
+      });
+
+      console.log("ისტორიის ცხრილი შეიქმნა Firebase-ში");
+   } catch (error) {
+      console.log(error);
+      throw error;
+   }
+};
+
+export const clearStayWithoutHistory = async (firebaseId: string) => {
    await updateDoc(doc(db, "rooms", firebaseId), {
       status: "free",
       currentStay: null,
