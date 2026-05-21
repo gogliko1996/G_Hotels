@@ -17,6 +17,13 @@ const getDiffDays = (from: Date | string, to: Date | string) => {
    return Math.max(0, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
 };
 
+const getStayedDaysUntilToday = (checkInDate: string, today: Date) => {
+   const checkIn = startOfDay(checkInDate).getTime();
+   const checkout = startOfDay(today).getTime();
+
+   return Math.max(1, Math.ceil((checkout - checkIn) / (1000 * 60 * 60 * 24)));
+};
+
 export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
    const today = startOfDay(new Date());
 
@@ -51,11 +58,28 @@ export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
          }
 
          if (calculatedRemainingDays <= 0) {
+            const stayToArchive = currentStay;
+            if (!stayToArchive) continue;
+
+            // აქ ჯერ ვამზადებთ მობინადრის ისტორიას, სანამ currentStay წაიშლება.
+            const daysStayed = getStayedDaysUntilToday(
+               stayToArchive.checkInDate,
+               today,
+            );
+
             historyItem = createStayHistoryItem(
                room.firebaseId,
                room,
-               currentStay as any,
+               stayToArchive as any,
+               {
+                  daysStayed,
+                  totalAmount:
+                     daysStayed * Number(stayToArchive.oneDayPrice || 0),
+                  checkOut: today,
+               },
             );
+
+            // აქ მხოლოდ local state-ში ვნიშნავთ წასაშლელად; Firebase-დან ჯერ არ იშლება.
             currentStay = null;
             changed = true;
          }
@@ -136,9 +160,11 @@ export const autoUpdateRooms = async (rooms: FirebaseRoom[]) => {
          };
 
          if (historyItem) {
+            // 1) ჯერ history ინახება roomHistory collection-ში.
             await addDoc(collection(db, "roomHistory"), historyItem);
          }
 
+         // 2) history-ის წარმატებით შენახვის შემდეგ იშლება/ახლდება currentStay ოთახში.
          await updateRoom(room.firebaseId, values);
       }
    }

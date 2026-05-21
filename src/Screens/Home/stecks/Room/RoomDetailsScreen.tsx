@@ -84,7 +84,7 @@ export const RoomDetailsScreen: React.FC = () => {
       today.setHours(0, 0, 0, 0);
 
       return Math.max(
-         0,
+         1,
          Math.ceil(
             (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
          ),
