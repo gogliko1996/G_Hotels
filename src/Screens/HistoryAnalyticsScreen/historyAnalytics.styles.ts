@@ -58,6 +58,28 @@ export const styles = StyleSheet.create({
       color: "#0f172a",
       marginBottom: 12,
    },
+   cardHeader: {
+      marginBottom: 12,
+   },
+   exportActions: {
+      flexDirection: "row",
+      gap: 10,
+   },
+   exportButton: {
+      flex: 1,
+      minHeight: 42,
+      borderRadius: 14,
+      backgroundColor: "#7c3aed",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 7,
+   },
+   exportButtonText: {
+      color: "#fff",
+      fontSize: 13,
+      fontWeight: "900",
+   },
    summaryGrid: {
       flexDirection: "row",
       flexWrap: "wrap",

@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import { getDaysUntil } from "../../AnalyticsScreen";
+import { getDaysUntil } from "../../utils/dateHelpers";
 import { styles } from "./futureReservations.styles";
 
 type ReservationItem = {

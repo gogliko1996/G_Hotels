@@ -15,10 +15,9 @@ import { GuestChart } from "./components/GuestChart/GuestChart";
 import { RoomsChart } from "./components/RoomsChart/RoomsChart";
 import { StatsGrid } from "./components/StatsGrid/StatsGrid";
 import { FutureReservations } from "./components/FutureReservations/FutureReservations";
+import { getDaysUntil, startOfDay } from "./utils/dateHelpers";
 
 import { styles } from "./analytics.styles";
-
-const DAY_MS = 1000 * 60 * 60 * 24;
 
 const getDateKey = (date = new Date()) => date.toISOString().split("T")[0];
 
@@ -26,21 +25,6 @@ const getYesterdayKey = () => {
   const date = new Date();
   date.setDate(date.getDate() - 1);
   return getDateKey(date);
-};
-
-const startOfDay = (value: Date | string) => {
-  const date = new Date(value);
-  date.setHours(0, 0, 0, 0);
-  return date;
-};
-
-export const getDaysUntil = (dateValue?: string) => {
-  if (!dateValue) return 0;
-
-  const now = startOfDay(new Date());
-  const target = startOfDay(dateValue);
-
-  return Math.max(0, Math.ceil((target.getTime() - now.getTime()) / DAY_MS));
 };
 
 const isOccupied = (room: FirebaseRoom) =>
