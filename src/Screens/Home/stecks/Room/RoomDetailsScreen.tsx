@@ -19,6 +19,7 @@ import { RoomInfoCard } from "./components/RoomInfoCard/RoomInfoCard";
 import { RoomActions } from "./components/RoomActions/RoomActions";
 import { ReservationsList } from "./components/ReservationsList/ReservationsList";
 import { OccupyRoomModal } from "./components/OccupyRoomModal/OccupyRoomModal";
+import { OneDayOccupyModal } from "./components/OneDayOccupyModal/OneDayOccupyModal";
 import { ReservationModal } from "./components/ReservationModal/ReservationModal";
 
 import { styles } from "./RoomDetailsScreen.styles";
@@ -39,6 +40,7 @@ export const RoomDetailsScreen: React.FC = () => {
    } = useRoomsStore();
 
    const [occupyModalOpen, setOccupyModalOpen] = useState(false);
+   const [oneDayOccupyModalOpen, setOneDayOccupyModalOpen] = useState(false);
    const [reservationModalOpen, setReservationModalOpen] = useState(false);
    const [finishModalOpen, setFinishModalOpen] = useState(false);
    const [finishDays, setFinishDays] = useState("");
@@ -171,6 +173,7 @@ export const RoomDetailsScreen: React.FC = () => {
             <RoomActions
                room={room}
                onOccupyPress={() => setOccupyModalOpen(true)}
+               onOneDayOccupyPress={() => setOneDayOccupyModalOpen(true)}
                onReservationPress={handleOpenCreateReservation}
                onFinishPress={handleFinishStay}
             />
@@ -185,6 +188,12 @@ export const RoomDetailsScreen: React.FC = () => {
             visible={occupyModalOpen}
             room={room}
             onClose={() => setOccupyModalOpen(false)}
+         />
+
+         <OneDayOccupyModal
+            visible={oneDayOccupyModalOpen}
+            room={room}
+            onClose={() => setOneDayOccupyModalOpen(false)}
          />
 
          <ReservationModal

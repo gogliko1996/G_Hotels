@@ -8,6 +8,7 @@ import { FirebaseRoom } from "../../../../../../store/store_service_type";
 type Props = {
    room: FirebaseRoom;
    onOccupyPress: () => void;
+   onOneDayOccupyPress: () => void;
    onReservationPress: () => void;
    onFinishPress: () => void;
 };
@@ -15,6 +16,7 @@ type Props = {
 export const RoomActions = ({
    room,
    onOccupyPress,
+   onOneDayOccupyPress,
    onReservationPress,
    onFinishPress,
 }: Props) => {
@@ -30,6 +32,16 @@ export const RoomActions = ({
                   : "მომხმარებლის შეშვება"}
             </Text>
          </TouchableOpacity>
+
+         {!room.currentStay && (
+            <TouchableOpacity
+               style={styles.orangeButton}
+               onPress={onOneDayOccupyPress}
+            >
+               <Ionicons name="today-outline" size={20} color="#fff" />
+               <Text style={styles.buttonText}>ერთი დღით შეშვება</Text>
+            </TouchableOpacity>
+         )}
 
          <TouchableOpacity
             style={styles.blueButton}

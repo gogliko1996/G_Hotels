@@ -34,6 +34,15 @@ export const styles = StyleSheet.create({
       flexDirection: "row",
       gap: 8,
    },
+   orangeButton: {
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: "#f97316",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 8,
+   },
    grayButton: {
       height: 54,
       borderRadius: 18,
